@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 
 namespace WarehouseRobot
 {
-    public class Gird
+    public class Grid
     {
-
+        public (uint, uint) Size
+        {
+            get;
+            private set;
+        } = (10, 10);
     }
 }

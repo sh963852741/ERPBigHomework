@@ -13,14 +13,14 @@ namespace WarehouseRobot
         {
             get;set;
         }
-        public Stack<(uint,uint)> Path
+        public Stack<(uint, uint)> Route
         {
             get; set;
-        }
+        } = new();
         public Stack<(uint, uint)> History
         {
             get; set;
-        }
+        } = new();
         public RobotState State
         {
             get; set;
@@ -38,10 +38,10 @@ namespace WarehouseRobot
         {
             if(State == RobotState.Running)
             {
-                CurrentPosition = Path.Pop();
+                CurrentPosition = Route.Pop();
                 History.Push(CurrentPosition);
 
-                if(Path.Count == 0)
+                if(Route.Count == 0)
                 {
                     State = RobotState.Finished;
                 }
@@ -53,9 +53,9 @@ namespace WarehouseRobot
             }
         }
 
-        public void SetTask(Stack<(uint, uint)> path)
+        public void SetTask(Stack<(uint, uint)> route)
         {
-            Path = path;
+            Route = route;
             State = RobotState.Running;
         }
     }

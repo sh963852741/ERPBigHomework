@@ -52,11 +52,20 @@ namespace WarehouseRobot
                 return false;
             }
         }
-
+        /// <summary>
+        /// 为机器人设置一个运输任务并将状态设置为运行
+        /// </summary>
+        /// <param name="route">机器人的运输路线，含起点和终点</param>
         public void SetTask(Stack<(uint, uint)> route)
         {
             Route = route;
             State = RobotState.Running;
+        }
+        public void Reset()
+        {
+            History.Clear();
+            Route.Clear();
+            State = RobotState.Idle;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace WarehouseRobot
         {
             get;
         }
-        public (uint, uint) Where
+        public Point Where
         {
             get;
         }
@@ -25,7 +26,7 @@ namespace WarehouseRobot
             get;
         }
 
-        public RouteConflictInfo(Robot r1,Robot r2,(uint,uint) where, int step)
+        public RouteConflictInfo(Robot r1,Robot r2,Point where, int step)
         {
             Robot1 = r1;
             Robot2 = r2;

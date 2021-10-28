@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,19 +14,19 @@ namespace WarehouseRobot
         {
             get;set;
         }
-        public Stack<(uint, uint)> Route
+        public IList<Point> Route
         {
             get; set;
-        } = new();
-        public Stack<(uint, uint)> History
+        }
+/*        public List<Point> History
         {
             get; set;
-        } = new();
+        } = new();*/
         public RobotState State
         {
             get; set;
         }
-        public (uint, uint) CurrentPosition
+        public Point CurrentPosition
         {
             get; set;
         }
@@ -36,12 +37,13 @@ namespace WarehouseRobot
         /// <returns>是否移动成功</returns>
         public bool Move()
         {
-            if(State == RobotState.Running)
+            if (State == RobotState.Running)
             {
-                CurrentPosition = Route.Pop();
-                History.Push(CurrentPosition);
-
-                if(Route.Count == 0)
+                CurrentPosition = Route[0];
+                Route.RemoveAt(0);
+                //History.Add(CurrentPosition);
+                Console.WriteLine(Route.Count);
+                if (Route.Count == 0)
                 {
                     State = RobotState.Finished;
                 }
@@ -56,16 +58,25 @@ namespace WarehouseRobot
         /// 为机器人设置一个运输任务并将状态设置为运行
         /// </summary>
         /// <param name="route">机器人的运输路线，含起点和终点</param>
-        public void SetTask(Stack<(uint, uint)> route)
+        public void SetTask(IList<Point> route)
         {
-            Route = route;
-            State = RobotState.Running;
+            if (route == null)
+                State = RobotState.Finished;
+            else
+            {
+                Route = route;
+                //Console.WriteLine(route);
+                State = RobotState.Running;
+            }
         }
         public void Reset()
         {
-            History.Clear();
-            Route.Clear();
             State = RobotState.Idle;
+            //History.Clear();
+            if (Route == null)
+                return;
+            Route.Clear();
+            
         }
     }
 }

@@ -1,22 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WarehouseRobot.Enum;
 
 namespace WarehouseRobot
 {
     public class ControlCenter
     {
-        private Grid grid = new();
+
+        //private Grid grid = null;
         public List<Robot> robots = new();
         public Dictionary<Robot, TransportTask> runningTasks = new();
+        AStarRoutePlanner aStarRoutePlanner = null;
+        private static int ROBOTS_NUM = 5;//机器人数量
+        private static int lineCount = 50;
+        private static int columnCount = 30;
+        ZoneState[][] grid = null;
+        public (int,int) GetSize()
+        {
+            return (columnCount,lineCount);
+        }
+        public int GetRobotsNum()
+        {
+            return ROBOTS_NUM;
+        }
         public ControlCenter()
         {
-            for (int i = 1; i <= 30; ++i)
+            for (int i = 1; i <= ROBOTS_NUM; ++i)
             {
                 robots.Add(new Robot());
             }
+            aStarRoutePlanner = new AStarRoutePlanner( columnCount, lineCount, new SimpleCostGetter());
+            grid = aStarRoutePlanner.grid;
+            // grid = new Grid(COL, ROW);
         }
         //public ControlCenter(Grid grid)
         //{
@@ -53,38 +72,10 @@ namespace WarehouseRobot
         /// <param name="robot"></param>
         /// <param name="task"></param>
         /// <returns></returns>
-        public Stack<(uint, uint)> CalcPath(Robot robot, TransportTask task)
+        public IList<Point> CalcPath(Robot robot, TransportTask task)
         {
-            Stack<(uint, uint)> route = new();
-            (uint, uint) from = task.from;
-            (uint, uint) to = task.to;
-
-            route.Push(from);
-            while (from.Item1 != to.Item1)
-            {
-                if (from.Item1 < to.Item1)
-                {
-                    ++from.Item1;
-                }
-                else
-                {
-                    --from.Item1;
-                }
-                route.Push(from);
-            }
-            while (from.Item2 != to.Item2)
-            {
-                if (from.Item2 < to.Item2)
-                {
-                    ++from.Item2;
-                }
-                else
-                {
-                    --from.Item2;
-                }
-                route.Push(from);
-            }
-            return new Stack<(uint, uint)>(route.ToArray());
+            IList<Point> route = aStarRoutePlanner.Plan(task.from, task.to);
+            return route;
         }
         /// <summary>
         /// 检测所有机器人的路线冲突
@@ -94,14 +85,14 @@ namespace WarehouseRobot
         {
             List<RouteConflictInfo> conflictInfos = new();
             List<Robot> robotsToDetect = new();
-            List<List<(uint, uint)>> routes = new();
+            List<List<Point>> routes = new();
             foreach (KeyValuePair<Robot, TransportTask> keyValuePair in runningTasks)
             {
                 robotsToDetect.Add(keyValuePair.Key);
                 routes.Add(keyValuePair.Key.Route.ToList());
             }
 
-            Dictionary<(uint, uint), Robot> conflictDict = new();
+            Dictionary<Point, Robot> conflictDict = new();
             List<int> robotToRemove = new();
             // 从现在往将来看i步，是否有冲突
             for (int i = 0; i < forsee; ++i)
@@ -151,10 +142,10 @@ namespace WarehouseRobot
         {
             throw new NotImplementedException();
         }
-        public List<(uint,uint)> GetCurrentCollision()
+        public List<Point> GetCurrentCollision()
         {
-            List<(uint, uint)> conflictPosition = new();
-            HashSet<(uint, uint)> conflict = new();
+            List<Point> conflictPosition = new();
+            HashSet<Point> conflict = new();
             foreach (KeyValuePair<Robot, TransportTask> keyValuePair in runningTasks)
             {
                 if (!conflict.Add(keyValuePair.Key.CurrentPosition))
@@ -166,15 +157,16 @@ namespace WarehouseRobot
         }
         public void Print()
         {
+            
             Console.SetCursorPosition(0, 0);
-            uint maxRow = grid.Size.Item1;
-            uint maxCol = grid.Size.Item2;
+            int maxRow = columnCount;
+            int maxCol = lineCount;
             for (uint i = 0; i < maxRow; ++i)
             {
                 for (uint j = 0; j < maxCol; ++j)
                 {
                     Console.SetCursorPosition((int)j * 2, (int)i);
-                    if (grid.GetPositionState(i, j) == Enum.ZoneState.Blocked)
+                    if (grid[i][j] == Enum.ZoneState.Blocked)
                     {
 
                         Console.Write("#");
@@ -190,36 +182,37 @@ namespace WarehouseRobot
 
             foreach (KeyValuePair<Robot, TransportTask> keyValuePair in runningTasks)
             {
-                (uint, uint) pos = keyValuePair.Key.CurrentPosition;
-                Console.SetCursorPosition((int)pos.Item2 * 2, (int)pos.Item1);
+                Point pos = keyValuePair.Key.CurrentPosition;
+                Console.SetCursorPosition((int)pos.Y * 2, (int)pos.X);
                 Console.Write("^ ");
             }
 
             List<RouteConflictInfo> conflicts = DetectConflict();
             foreach (RouteConflictInfo conflict in conflicts)
             {
-                (uint, uint) pos1 = conflict.Robot1.CurrentPosition;
-                (uint, uint) pos2 = conflict.Robot2.CurrentPosition;
-                (uint, uint) pos = conflict.Where;
+                Point pos1 = conflict.Robot1.CurrentPosition;
+                Point pos2 = conflict.Robot2.CurrentPosition;
+                Point pos = conflict.Where;
+                
 
                 Console.BackgroundColor = ConsoleColor.Yellow;
-                Console.SetCursorPosition((int)pos1.Item2 * 2, (int)pos1.Item1);
+                Console.SetCursorPosition((int)pos1.Y * 2, (int)pos1.X);
                 Console.Write("^ ");
-                Console.SetCursorPosition((int)pos2.Item2 * 2, (int)pos2.Item1);
+                Console.SetCursorPosition((int)pos2.Y * 2, (int)pos2.X);
                 Console.Write("^ ");
                 Console.BackgroundColor = ConsoleColor.Black;
 
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition((int)pos.Item2 * 2, (int)pos.Item1);
+                Console.SetCursorPosition((int)pos.Y * 2, (int)pos.X);
                 Console.Write("! ");
                 Console.ForegroundColor = ConsoleColor.White;
             }
 
-            foreach((uint,uint) position in GetCurrentCollision())
+            foreach(Point position in GetCurrentCollision())
             {
                 Console.BackgroundColor = ConsoleColor.Red;
                 Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition((int)position.Item2 * 2, (int)position.Item1);
+                Console.SetCursorPosition((int)position.Y * 2, (int)position.X);
                 Console.Write("X ");
                 Console.ResetColor();
             }

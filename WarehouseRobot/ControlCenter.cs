@@ -64,6 +64,16 @@ namespace WarehouseRobot
             grid = GridGenerator.GetGrid(rowCount, colCount);
             aStarRoutePlanner = new AStarRoutePlanner(grid, new SimpleCostGetter());
         }
+
+        public ControlCenter(ZoneState[,] grid)
+        {
+            for (int i = 1; i <= RobotNum; ++i)
+            {
+                Robots.Add(new Robot());
+            }
+            this.grid = grid;
+            aStarRoutePlanner = new AStarRoutePlanner(grid, new SimpleCostGetter());
+        }
         /// <summary>
         /// 计算下一个时间点时机器人的信息
         /// </summary>

@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WarehouseRobot.Enum;
+using WarehouseRobot.Utility;
 
 namespace WarehouseRobot
 {
@@ -16,13 +18,18 @@ namespace WarehouseRobot
         private static Random r = new();
         private CancellationTokenSource tokenSource;
         private ControlCenter cc = null;
+        private List<Point> obstaclePoints = new();
         private int maxRow = 0;
         private int maxCol = 0;
+        private const int gridGap = 20;
+        private ZoneState[,] grid = null;
+        private Graphics graphics = null;
 
         public MainForm()
         {
             //CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
+            graphics = simulatePanel.CreateGraphics();
         }
 
         private void BeginSimulateButton_Click(object sender, EventArgs e)
@@ -43,11 +50,15 @@ namespace WarehouseRobot
             //    Console.WriteLine(item);
             //}
             #endregion
+
+            cc = new ControlCenter(grid);
+            cc.OnOneTaskFinished += ReflashInfo;
             drawButton.Enabled = false;
             tokenSource = new();
 
             CancellationToken token = tokenSource.Token;
-            Task task = new (() => {
+            Task task = new(() =>
+            {
                 while (!token.IsCancellationRequested)
                 {
                     if (cc.RunningTasks.Count < cc.RobotNum)
@@ -66,27 +77,36 @@ namespace WarehouseRobot
                     Thread.Sleep(1000);
                 }
             });
+
+            allRobotCountLabel.Text = $"总共机器人数：{cc.Robots.Count}";
             task.Start();
+        }
+
+        private void SetCellColor(Point point, Color color)
+        {
+            Brush b = new SolidBrush(color);
+            graphics.FillRectangle(b, point.X* gridGap + 1, point.Y* gridGap + 1, gridGap - 1, gridGap - 1);
         }
 
         private void DrawButton_Click(object sender, EventArgs e)
         {
             maxRow = (int)rowCountUpDown.Value;
             maxCol = (int)colCountUpDown.Value;
-            cc = new ControlCenter(maxRow, maxCol);
-            cc.OnOneTaskFinished += ReflashInfo;
 
-            Graphics g = simulatePanel.CreateGraphics();
             Pen p = new(Brushes.Blue);
-            for (int i = 0; i < cc.Size.Item1; i++)
+            for (int i = 0; i < maxRow; i++)
             {
-                for (int j = 0; j < cc.Size.Item2; j++)
+                for (int j = 0; j < maxCol; j++)
                 {
-                    g.DrawRectangle(p, j * 20, i * 20, 20, 20);
+                    graphics.DrawRectangle(p, j * gridGap, i * gridGap, gridGap, gridGap);
                 }
             }
+            grid = GridGenerator.GetGrid(maxRow, maxCol);
+
             beginSimulateButton.Enabled = true;
             addTaskButton.Enabled = true;
+            setBeginButton.Enabled = true;
+            setObstacleButton.Enabled = true;
         }
 
         private void StopSimulateButton_Click(object sender, EventArgs e)
@@ -110,11 +130,28 @@ namespace WarehouseRobot
 
         private void ReflashInfo()
         {
-            Action a = () => {
+            Action a = () =>
+            {
                 queuingTaskCountLabel.Text = $"排队任务数：{cc.QueuingTaskCount}";
                 runningTaskCountLabel.Text = $"执行任务数：{cc.RunningTasks.Count}";
             };
             this.Invoke(a);
+        }
+
+        private void SimulatePanel_Click(object sender, EventArgs e)
+        {
+            MouseEventArgs @event = (MouseEventArgs)e;
+            int x = @event.X / gridGap;
+            int y = @event.Y / gridGap;
+            obstaclePoints.Add(new Point(x, y));
+            grid = GridGenerator.GetGrid(obstaclePoints, maxRow, maxCol);
+            SetCellColor(new Point(x, y), Color.Black);
+        }
+
+        private enum MapState
+        {
+            SettingBeginPoint,
+            SettingObstaclePoint
         }
     }
 }

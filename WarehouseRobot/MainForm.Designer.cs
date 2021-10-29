@@ -40,6 +40,9 @@ namespace WarehouseRobot
             this.addTaskButton = new System.Windows.Forms.Button();
             this.queuingTaskCountLabel = new System.Windows.Forms.Label();
             this.runningTaskCountLabel = new System.Windows.Forms.Label();
+            this.allRobotCountLabel = new System.Windows.Forms.Label();
+            this.setBeginButton = new System.Windows.Forms.Button();
+            this.setObstacleButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.rowCountUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.colCountUpDown)).BeginInit();
             this.SuspendLayout();
@@ -59,8 +62,9 @@ namespace WarehouseRobot
             // 
             this.simulatePanel.Location = new System.Drawing.Point(12, 30);
             this.simulatePanel.Name = "simulatePanel";
-            this.simulatePanel.Size = new System.Drawing.Size(1103, 631);
+            this.simulatePanel.Size = new System.Drawing.Size(1088, 631);
             this.simulatePanel.TabIndex = 1;
+            this.simulatePanel.Click += new System.EventHandler(this.SimulatePanel_Click);
             // 
             // drawButton
             // 
@@ -138,7 +142,7 @@ namespace WarehouseRobot
             // queuingTaskCountLabel
             // 
             this.queuingTaskCountLabel.AutoSize = true;
-            this.queuingTaskCountLabel.Location = new System.Drawing.Point(1121, 48);
+            this.queuingTaskCountLabel.Location = new System.Drawing.Point(1106, 65);
             this.queuingTaskCountLabel.Name = "queuingTaskCountLabel";
             this.queuingTaskCountLabel.Size = new System.Drawing.Size(129, 20);
             this.queuingTaskCountLabel.TabIndex = 9;
@@ -147,17 +151,49 @@ namespace WarehouseRobot
             // runningTaskCountLabel
             // 
             this.runningTaskCountLabel.AutoSize = true;
-            this.runningTaskCountLabel.Location = new System.Drawing.Point(1121, 80);
+            this.runningTaskCountLabel.Location = new System.Drawing.Point(1106, 98);
             this.runningTaskCountLabel.Name = "runningTaskCountLabel";
             this.runningTaskCountLabel.Size = new System.Drawing.Size(129, 20);
             this.runningTaskCountLabel.TabIndex = 10;
             this.runningTaskCountLabel.Text = "执行任务数：待定";
+            // 
+            // allRobotCountLabel
+            // 
+            this.allRobotCountLabel.AutoSize = true;
+            this.allRobotCountLabel.Location = new System.Drawing.Point(1106, 30);
+            this.allRobotCountLabel.Name = "allRobotCountLabel";
+            this.allRobotCountLabel.Size = new System.Drawing.Size(144, 20);
+            this.allRobotCountLabel.TabIndex = 11;
+            this.allRobotCountLabel.Text = "总共机器人数：待定";
+            // 
+            // setBeginButton
+            // 
+            this.setBeginButton.Enabled = false;
+            this.setBeginButton.Location = new System.Drawing.Point(1132, 187);
+            this.setBeginButton.Name = "setBeginButton";
+            this.setBeginButton.Size = new System.Drawing.Size(94, 29);
+            this.setBeginButton.TabIndex = 12;
+            this.setBeginButton.Text = "设置出发点";
+            this.setBeginButton.UseVisualStyleBackColor = true;
+            // 
+            // setObstacleButton
+            // 
+            this.setObstacleButton.Enabled = false;
+            this.setObstacleButton.Location = new System.Drawing.Point(1132, 239);
+            this.setObstacleButton.Name = "setObstacleButton";
+            this.setObstacleButton.Size = new System.Drawing.Size(94, 29);
+            this.setObstacleButton.TabIndex = 13;
+            this.setObstacleButton.Text = "设置障碍物";
+            this.setObstacleButton.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1262, 673);
+            this.Controls.Add(this.setObstacleButton);
+            this.Controls.Add(this.setBeginButton);
+            this.Controls.Add(this.allRobotCountLabel);
             this.Controls.Add(this.runningTaskCountLabel);
             this.Controls.Add(this.queuingTaskCountLabel);
             this.Controls.Add(this.addTaskButton);
@@ -191,5 +227,8 @@ namespace WarehouseRobot
         private System.Windows.Forms.Button addTaskButton;
         private System.Windows.Forms.Label queuingTaskCountLabel;
         private System.Windows.Forms.Label runningTaskCountLabel;
+        private System.Windows.Forms.Label allRobotCountLabel;
+        private System.Windows.Forms.Button setBeginButton;
+        private System.Windows.Forms.Button setObstacleButton;
     }
 }

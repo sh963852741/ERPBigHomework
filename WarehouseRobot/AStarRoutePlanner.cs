@@ -115,15 +115,15 @@ namespace WarehouseRobot
                 AStarNode existNode = GetNodeOnLocation(nextCell, routePlanData);
                 if (existNode != null)
                 {
-                    if (existNode.CostG > costG)
+                    if (existNode.CostG > currenNode.CostG + costG)
                     {
                         //如果新的路径代价更小，则更新该位置上的节点的原始路径
-                        existNode.ResetPreviousNode(currenNode, costG);
+                        existNode.ResetPreviousNode(currenNode, currenNode.CostG + costG);
                     }
                 }
                 else
                 {
-                    AStarNode newNode = new(nextCell, currenNode, costG, costH);
+                    AStarNode newNode = new(nextCell, currenNode, currenNode.CostG + costG, costH);
                     routePlanData.OpenedList.Add(newNode);
                 }
             }

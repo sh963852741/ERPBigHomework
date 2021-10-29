@@ -199,6 +199,7 @@ namespace WarehouseRobot
             }
             return conflictPosition;
         }
+        [Obsolete("仅用于控制台打印")]
         public void Print()
         {
             Console.SetCursorPosition(0, 0);
@@ -258,34 +259,6 @@ namespace WarehouseRobot
                 Console.SetCursorPosition(position.X * 2, position.Y);
                 Console.Write("X ");
                 Console.ResetColor();
-            }
-        }
-        public void Print(Graphics g)
-        {
-            Brush brush = new SolidBrush(Color.White);
-            for (uint i = 0; i < Size.Item1; ++i)
-            {
-                for (uint j = 0; j < Size.Item2; ++j)
-                {
-                    g.FillRectangle(brush, j * 20 + 1, i * 20 + 1, 19, 19);
-                }
-            }
-
-            brush = new SolidBrush(Color.Black);
-            for (uint i = 0; i < Size.Item1; ++i)
-            {
-                for (uint j = 0; j < Size.Item2; ++j)
-                {
-                    if (grid[i, j] == ZoneState.Blocked)
-                        g.FillRectangle(brush, j * 20 + 1, i * 20 + 1, 19, 19);
-                }
-            }
-
-            brush = new SolidBrush(Color.Red);
-            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in RunningTasks)
-            {
-                Point pos = keyValuePair.Key.CurrentPosition;
-                g.FillRectangle(brush, pos.X * 20 + 1, pos.Y * 20 + 1, 19, 19);
             }
         }
 

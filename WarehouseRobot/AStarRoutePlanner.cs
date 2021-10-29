@@ -61,7 +61,6 @@ namespace WarehouseRobot
             {
                 for (int j = 0; j < RowCount; j++)
                 {
-
                     if (r.Next() % 10 == 0)
                         Grid[i, j] = ZoneState.Blocked;
                     else
@@ -131,7 +130,7 @@ namespace WarehouseRobot
                     continue;
                 }
 
-                if (this.Grid[nextCell.X,nextCell.Y]==ZoneState.Blocked) //下一个Cell为障碍物
+                if (Grid[nextCell.X, nextCell.Y] == ZoneState.Blocked) //下一个Cell为障碍物
                 {
                     continue;
                 }
@@ -153,7 +152,7 @@ namespace WarehouseRobot
                     return route;
                 }
 
-                AStarNode existNode = this.GetNodeOnLocation(nextCell, routePlanData);
+                AStarNode existNode = GetNodeOnLocation(nextCell, routePlanData);
                 if (existNode != null)
                 {
                     if (existNode.CostG > costG)
@@ -164,7 +163,7 @@ namespace WarehouseRobot
                 }
                 else
                 {
-                    AStarNode newNode = new AStarNode(nextCell, currenNode, costG, costH);
+                    AStarNode newNode = new(nextCell, currenNode, costG, costH);
                     routePlanData.OpenedList.Add(newNode);
                 }
             }
@@ -173,7 +172,7 @@ namespace WarehouseRobot
             routePlanData.OpenedList.Remove(currenNode);
             routePlanData.ClosedList.Add(currenNode);
 
-            AStarNode minCostNode = this.GetMinCostNode(routePlanData.OpenedList);
+            AStarNode minCostNode = GetMinCostNode(routePlanData.OpenedList);
             if (minCostNode == null) //表明从起点到终点之间没有任何通路。
             {
                 return null;

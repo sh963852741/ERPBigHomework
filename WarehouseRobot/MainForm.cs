@@ -15,18 +15,14 @@ namespace WarehouseRobot
     {
         private static Random r = new();
         private CancellationTokenSource tokenSource;
-        private Button[,] buttons = null;
-        private const int rowCount = 100;
-        private const int colCount = 100;
+        private ControlCenter cc = null;
+        private int maxRow = 0;
+        private int maxCol = 0;
 
         public MainForm()
         {
+            //CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
-        }
-
-        private void DrawBotton()
-        {
-
         }
 
         private void BeginSimulateButton_Click(object sender, EventArgs e)
@@ -47,20 +43,9 @@ namespace WarehouseRobot
             //    Console.WriteLine(item);
             //}
             #endregion
-
+            drawButton.Enabled = false;
             tokenSource = new();
-            #region 画网格
-            ControlCenter cc = new();
-            Graphics g = simulatePanel.CreateGraphics();
-            Pen p = new(Brushes.Blue);
-            for (int i = 0; i < cc.Size.Item1; i++)
-            {
-                for (int j = 0; j < cc.Size.Item2; j++)
-                {
-                    g.DrawRectangle(p, j * 20, i * 20, 20, 20);
-                }
-            }
-            #endregion
+
             CancellationToken token = tokenSource.Token;
             Task task = new (() => {
                 while (!token.IsCancellationRequested)
@@ -86,36 +71,50 @@ namespace WarehouseRobot
 
         private void DrawButton_Click(object sender, EventArgs e)
         {
-            //Button[,] buttons = new Button[rowCount, colCount];
-            //for (int i = 0; i < rowCount; ++i)
-            //{
-            //    for (int j = 0; j < colCount; ++j)
-            //    {
-            //        Button button = buttons[i, j] = new Button();
-            //        //button.Text = string.Empty;
-            //        buttons[i,j].FlatStyle = FlatStyle.Flat;
-            //        button.Visible = true;
-            //        button.Location = new Point(10 * j, 10 * i);
-            //        buttons[i, j].Size = new Size(10, 10);
-            //        simulatePanel.Controls.Add(button);
-            //    }
-            //}
-            //this.buttons = buttons;
+            maxRow = (int)rowCountUpDown.Value;
+            maxCol = (int)colCountUpDown.Value;
+            cc = new ControlCenter(maxRow, maxCol);
+            cc.OnOneTaskFinished += ReflashInfo;
 
             Graphics g = simulatePanel.CreateGraphics();
             Pen p = new(Brushes.Blue);
-            for (int i = 0; i < rowCount; i++)
+            for (int i = 0; i < cc.Size.Item1; i++)
             {
-                for (int j = 0; j < colCount; j++)
+                for (int j = 0; j < cc.Size.Item2; j++)
                 {
-                    g.DrawRectangle(p, j * 10, i * 6, 10, 6);
+                    g.DrawRectangle(p, j * 20, i * 20, 20, 20);
                 }
             }
+            beginSimulateButton.Enabled = true;
+            addTaskButton.Enabled = true;
         }
 
         private void StopSimulateButton_Click(object sender, EventArgs e)
         {
             tokenSource.Cancel();
+            drawButton.Enabled = true;
+        }
+
+        private void AddTaskButton_Click(object sender, EventArgs e)
+        {
+            cc.AssignTask(new TransportTask()
+            {
+                from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
+                to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
+            });
+
+            /* 更新必要信息 */
+            queuingTaskCountLabel.Text = $"排队任务数：{cc.QueuingTaskCount}";
+            runningTaskCountLabel.Text = $"执行任务数：{cc.RunningTasks.Count}";
+        }
+
+        private void ReflashInfo()
+        {
+            Action a = () => {
+                queuingTaskCountLabel.Text = $"排队任务数：{cc.QueuingTaskCount}";
+                runningTaskCountLabel.Text = $"执行任务数：{cc.RunningTasks.Count}";
+            };
+            this.Invoke(a);
         }
     }
 }

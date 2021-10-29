@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WarehouseRobot.Enum;
+using WarehouseRobot.Utility;
 
 namespace WarehouseRobot
 {
     public class ControlCenter
     {
+        public event Action OnOneTaskFinished;
+
         private AStarRoutePlanner aStarRoutePlanner = null;
         /// <summary>
         /// 所有的机器人
@@ -35,31 +38,31 @@ namespace WarehouseRobot
             get;
         } = 5;
         /// <summary>
-        /// 有多少行
+        /// 排队任务数
         /// </summary>
-        private readonly int rowCount = 20;
-        /// <summary>
-        /// 有多少列
-        /// </summary>
-        private readonly int columnCount = 30;
+        public int QueuingTaskCount
+        {
+            get { return waitingTask.Count; }
+        }
 
+        private Queue<TransportTask> waitingTask = new();
         private ZoneState[,] grid = null;
         public (int, int) Size
         {
             get
             {
-                return (rowCount, columnCount);
+                return (grid.GetLength(0), grid.GetLength(1));
             }
         }
 
-        public ControlCenter()
+        public ControlCenter(int rowCount = 30, int colCount = 30)
         {
             for (int i = 1; i <= RobotNum; ++i)
             {
                 Robots.Add(new Robot());
             }
-            aStarRoutePlanner = new AStarRoutePlanner(columnCount, rowCount, new SimpleCostGetter());
-            grid = aStarRoutePlanner.Grid;
+            grid = GridGenerator.GetGrid(rowCount, colCount);
+            aStarRoutePlanner = new AStarRoutePlanner(grid, new SimpleCostGetter());
         }
         /// <summary>
         /// 计算下一个时间点时机器人的信息
@@ -68,10 +71,14 @@ namespace WarehouseRobot
         {
             foreach (Robot r in Robots)
             {
-                if (r.State == Enum.RobotState.Finished)
+                if (r.State == RobotState.Finished)
                 {
                     RunningTasks.Remove(r);
                     r.Reset();
+                    if (waitingTask.Count > 0)
+                        AssignTask(waitingTask.Dequeue());
+                    // 调用事件
+                    OnOneTaskFinished();
                 }
                 r.Move();
             }
@@ -82,9 +89,16 @@ namespace WarehouseRobot
         /// <param name="task">需要被执行的任务</param>
         public void AssignTask(TransportTask task)
         {
-            Robot idleRobot = Robots.Find(e => e.State == Enum.RobotState.Idle);
-            RunningTasks.Add(idleRobot, task);
-            idleRobot.SetTask(CalcPath(idleRobot, task));
+            Robot idleRobot = FindIdleRobot();
+            if (idleRobot == null)
+            {
+                waitingTask.Enqueue(task);
+            }
+            else
+            {
+                RunningTasks.Add(idleRobot, task);
+                idleRobot.SetTask(CalcPath(idleRobot, task));
+            }
         }
         /// <summary>
         /// 计算机器人的运输最短路径
@@ -178,8 +192,8 @@ namespace WarehouseRobot
         public void Print()
         {
             Console.SetCursorPosition(0, 0);
-            int maxRow = rowCount;
-            int maxCol = columnCount;
+            int maxRow = Size.Item1;
+            int maxCol = Size.Item2;
             for (uint i = 0; i < maxRow; ++i)
             {
                 for (uint j = 0; j < maxCol; ++j)
@@ -239,18 +253,18 @@ namespace WarehouseRobot
         public void Print(Graphics g)
         {
             Brush brush = new SolidBrush(Color.White);
-            for (uint i = 0; i < rowCount; ++i)
+            for (uint i = 0; i < Size.Item1; ++i)
             {
-                for (uint j = 0; j < columnCount; ++j)
+                for (uint j = 0; j < Size.Item2; ++j)
                 {
                     g.FillRectangle(brush, j * 20 + 1, i * 20 + 1, 19, 19);
                 }
             }
 
             brush = new SolidBrush(Color.Black);
-            for (uint i = 0; i < rowCount; ++i)
+            for (uint i = 0; i < Size.Item1; ++i)
             {
-                for (uint j = 0; j < columnCount; ++j)
+                for (uint j = 0; j < Size.Item2; ++j)
                 {
                     if (grid[i, j] == ZoneState.Blocked)
                         g.FillRectangle(brush, j * 20 + 1, i * 20 + 1, 19, 19);
@@ -264,5 +278,7 @@ namespace WarehouseRobot
                 g.FillRectangle(brush, pos.X * 20 + 1, pos.Y * 20 + 1, 19, 19);
             }
         }
+
+        private Robot FindIdleRobot() => Robots.Find(e => e.State == Enum.RobotState.Idle);
     }
 }

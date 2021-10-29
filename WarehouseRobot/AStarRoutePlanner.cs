@@ -21,11 +21,11 @@ namespace WarehouseRobot
         /// <summary>
         /// 地图宽度（X坐标，水平轴）
         /// </summary>
-        public int ColumnCount { get; }
+        public int ColumnCount { get { return Grid.GetLength(1); } }
         /// <summary>
         /// 地图高度(Y坐标，竖直轴)
         /// </summary>
-        public int RowCount { get; }
+        public int RowCount { get { return Grid.GetLength(0); } }
         /// <summary>
         /// 计算移动花费
         /// </summary>
@@ -41,53 +41,10 @@ namespace WarehouseRobot
         /// <param name="columnCount"></param>
         /// <param name="rowCount"></param>
         /// <param name="costGetter"></param>
-        public AStarRoutePlanner(int columnCount, int rowCount, ICostGetter costGetter)
+        public AStarRoutePlanner(ZoneState[,] grid, ICostGetter costGetter)
         {
-            RowCount = rowCount;
-            ColumnCount = columnCount;
             this.costGetter = costGetter;
-
-            Initialize();
-        }
-
-        /// <summary>
-        /// 将所有位置进行随机初始化。
-        /// </summary>
-        public void Initialize()
-        {
-            Grid = new ZoneState[RowCount, ColumnCount];
-
-            for (int i = 0; i < RowCount; i++)
-            {
-                for (int j = 0; j < ColumnCount; j++)
-                {
-                    if (r.Next() % 10 == 0)
-                        Grid[i, j] = ZoneState.Blocked;
-                    else
-                        Grid[i, j] = ZoneState.Empty;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 指定障碍物位置，进行初始化。
-        /// </summary>
-        /// <param name="obstaclePoints">指定障碍物的位置</param>
-        public void Initialize(IList<Point> obstaclePoints)
-        {
-            Grid = new ZoneState[RowCount, ColumnCount];
-
-            for (int i = 0; i < RowCount; i++)
-            {
-                for (int j = 0; j < ColumnCount; j++)
-                {
-                    Grid[i, j] = ZoneState.Empty;
-                }
-            }
-            foreach (Point pt in obstaclePoints)
-            {
-                Grid[pt.Y, pt.X] = ZoneState.Blocked;
-            }
+            Grid = grid;
         }
 
         /// <summary>
@@ -125,22 +82,22 @@ namespace WarehouseRobot
             foreach (CompassDirections direction in allCompassDirections)
             {
                 Point nextCell = GeometryHelper.GetAdjacentPoint(currenNode.Location, direction);
-                if (!routePlanData.CellMap.Contains(nextCell)) 
-                {
+                if (!routePlanData.CellMap.Contains(nextCell))
+                {
                     // 相邻点已经在地图之外
                     continue;
                 }
 
                 if (Grid[nextCell.Y, nextCell.X] == ZoneState.Blocked)
-                {
+                {
                     // 下一个Cell为障碍物
                     continue;
                 }
 
                 int costG = costGetter.GetCost(currenNode.Location, direction);
                 int costH = Math.Abs(nextCell.X - routePlanData.Destination.X) + Math.Abs(nextCell.Y - routePlanData.Destination.Y);
-                if (costH == 0) 
-                {
+                if (costH == 0)
+                {
                     // costH为0，表示相邻点就是目的点，规划完成，构造结果路径
                     IList<Point> route = new List<Point>();
                     route.Add(routePlanData.Destination);

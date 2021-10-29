@@ -31,17 +31,15 @@ namespace ERPBigHomework
 
             while (!(Console.KeyAvailable && Console.ReadKey().Key == ConsoleKey.Escape))
             {
-                if (cc.runningTasks.Count < cc.GetRobotsNum())
+                if (cc.RunningTasks.Count < cc.RobotNum)
                 {
-                    int maxCol = cc.GetSize().Item1;
-                    int maxRow = cc.GetSize().Item2;
+                    int maxRow = cc.Size.Item1;
+                    int maxCol = cc.Size.Item2;
                     cc.AssignTask(new TransportTask()
                     {
-                        
-                        from = new Point((int)r.Next(0, maxCol), (int)r.Next(0, maxRow)),
-                        to = new Point((int)r.Next(0, maxCol), (int)r.Next(0, maxRow))
+                        from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
+                        to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
                     });
-                    ;
                 }
                 cc.NextTick();
                 cc.Print();

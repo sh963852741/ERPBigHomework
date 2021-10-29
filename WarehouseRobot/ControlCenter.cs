@@ -10,51 +10,67 @@ namespace WarehouseRobot
 {
     public class ControlCenter
     {
-        //private Grid grid = null;
-        public List<Robot> robots = new();
-        public Dictionary<Robot, TransportTask> runningTasks = new();
-        AStarRoutePlanner aStarRoutePlanner = null;
+        private AStarRoutePlanner aStarRoutePlanner = null;
+        /// <summary>
+        /// 所有的机器人
+        /// </summary>
+        public List<Robot> Robots
+        { 
+            get; 
+            private set;
+        } = new();
+        /// <summary>
+        /// 正在运行的任务
+        /// </summary>
+        public Dictionary<Robot, TransportTask> RunningTasks
+        {
+            get;
+            private set;
+        } = new();
         /// <summary>
         /// 机器人数量
         /// </summary>
-        private const int ROBOTS_NUM = 5;
+        public int RobotNum
+        {
+            get;
+        } = 5;
         /// <summary>
         /// 有多少行
         /// </summary>
-        private const int lineCount = 50;
+        private readonly int rowCount = 20;
         /// <summary>
         /// 有多少列
         /// </summary>
-        private const int columnCount = 30;
-        ZoneState[,] grid = null;
-        public (int,int) GetSize()
+        private readonly int columnCount = 30;
+
+        private ZoneState[,] grid = null;
+        public (int, int) Size
         {
-            return (columnCount,lineCount);
+            get
+            {
+                return (rowCount, columnCount);
+            }
         }
-        public int GetRobotsNum()
-        {
-            return ROBOTS_NUM;
-        }
+
         public ControlCenter()
         {
-            for (int i = 1; i <= ROBOTS_NUM; ++i)
+            for (int i = 1; i <= RobotNum; ++i)
             {
-                robots.Add(new Robot());
+                Robots.Add(new Robot());
             }
-            aStarRoutePlanner = new AStarRoutePlanner( columnCount, lineCount, new SimpleCostGetter());
+            aStarRoutePlanner = new AStarRoutePlanner(columnCount, rowCount, new SimpleCostGetter());
             grid = aStarRoutePlanner.Grid;
-            // grid = new Grid(COL, ROW);
         }
         /// <summary>
         /// 计算下一个时间点时机器人的信息
         /// </summary>
         public void NextTick()
         {
-            foreach (Robot r in robots)
+            foreach (Robot r in Robots)
             {
                 if (r.State == Enum.RobotState.Finished)
                 {
-                    runningTasks.Remove(r);
+                    RunningTasks.Remove(r);
                     r.Reset();
                 }
                 r.Move();
@@ -66,8 +82,8 @@ namespace WarehouseRobot
         /// <param name="task">需要被执行的任务</param>
         public void AssignTask(TransportTask task)
         {
-            Robot idleRobot = robots.Find(e => e.State == Enum.RobotState.Idle);
-            runningTasks.Add(idleRobot, task);
+            Robot idleRobot = Robots.Find(e => e.State == Enum.RobotState.Idle);
+            RunningTasks.Add(idleRobot, task);
             idleRobot.SetTask(CalcPath(idleRobot, task));
         }
         /// <summary>
@@ -90,7 +106,7 @@ namespace WarehouseRobot
             List<RouteConflictInfo> conflictInfos = new();
             List<Robot> robotsToDetect = new();
             List<List<Point>> routes = new();
-            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in runningTasks)
+            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in RunningTasks)
             {
                 robotsToDetect.Add(keyValuePair.Key);
                 routes.Add(keyValuePair.Key.Route.ToList());
@@ -150,7 +166,7 @@ namespace WarehouseRobot
         {
             List<Point> conflictPosition = new();
             HashSet<Point> conflict = new();
-            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in runningTasks)
+            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in RunningTasks)
             {
                 if (!conflict.Add(keyValuePair.Key.CurrentPosition))
                 {
@@ -161,16 +177,15 @@ namespace WarehouseRobot
         }
         public void Print()
         {
-            
             Console.SetCursorPosition(0, 0);
-            int maxRow = columnCount;
-            int maxCol = lineCount;
+            int maxRow = rowCount;
+            int maxCol = columnCount;
             for (uint i = 0; i < maxRow; ++i)
             {
                 for (uint j = 0; j < maxCol; ++j)
                 {
                     Console.SetCursorPosition((int)j * 2, (int)i);
-                    if (grid[i,j] == Enum.ZoneState.Blocked)
+                    if (grid[i, j] == ZoneState.Blocked)
                     {
 
                         Console.Write("#");
@@ -184,10 +199,10 @@ namespace WarehouseRobot
                 Console.WriteLine();
             }
 
-            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in runningTasks)
+            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in RunningTasks)
             {
                 Point pos = keyValuePair.Key.CurrentPosition;
-                Console.SetCursorPosition((int)pos.Y * 2, (int)pos.X);
+                Console.SetCursorPosition(pos.X * 2, pos.Y);
                 Console.Write("^ ");
             }
 
@@ -197,26 +212,26 @@ namespace WarehouseRobot
                 Point pos1 = conflict.Robot1.CurrentPosition;
                 Point pos2 = conflict.Robot2.CurrentPosition;
                 Point pos = conflict.Where;
-                
+
 
                 Console.BackgroundColor = ConsoleColor.Yellow;
-                Console.SetCursorPosition((int)pos1.Y * 2, (int)pos1.X);
+                Console.SetCursorPosition(pos1.X * 2, pos1.Y);
                 Console.Write("^ ");
-                Console.SetCursorPosition((int)pos2.Y * 2, (int)pos2.X);
+                Console.SetCursorPosition(pos2.X * 2, pos2.Y);
                 Console.Write("^ ");
                 Console.BackgroundColor = ConsoleColor.Black;
 
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition((int)pos.Y * 2, (int)pos.X);
+                Console.SetCursorPosition(pos.X * 2, pos.Y);
                 Console.Write("! ");
                 Console.ForegroundColor = ConsoleColor.White;
             }
 
-            foreach(Point position in GetCurrentCollision())
+            foreach (Point position in GetCurrentCollision())
             {
                 Console.BackgroundColor = ConsoleColor.Red;
                 Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition((int)position.Y * 2, (int)position.X);
+                Console.SetCursorPosition(position.X * 2, position.Y);
                 Console.Write("X ");
                 Console.ResetColor();
             }

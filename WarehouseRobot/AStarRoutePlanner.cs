@@ -19,11 +19,11 @@ namespace WarehouseRobot
     {
         private readonly static Random r = new();
         /// <summary>
-        /// 地图宽度（X坐标）
+        /// 地图宽度（X坐标，水平轴）
         /// </summary>
         public int ColumnCount { get; }
         /// <summary>
-        /// 地图高度(Y坐标)
+        /// 地图高度(Y坐标，竖直轴)
         /// </summary>
         public int RowCount { get; }
         /// <summary>
@@ -55,11 +55,11 @@ namespace WarehouseRobot
         /// </summary>
         public void Initialize()
         {
-            Grid = new ZoneState[ColumnCount, RowCount];
+            Grid = new ZoneState[RowCount, ColumnCount];
 
-            for (int i = 0; i < ColumnCount; i++)
+            for (int i = 0; i < RowCount; i++)
             {
-                for (int j = 0; j < RowCount; j++)
+                for (int j = 0; j < ColumnCount; j++)
                 {
                     if (r.Next() % 10 == 0)
                         Grid[i, j] = ZoneState.Blocked;
@@ -75,18 +75,18 @@ namespace WarehouseRobot
         /// <param name="obstaclePoints">指定障碍物的位置</param>
         public void Initialize(IList<Point> obstaclePoints)
         {
-            Grid = new ZoneState[ColumnCount, RowCount];
+            Grid = new ZoneState[RowCount, ColumnCount];
 
-            for (int i = 0; i < ColumnCount; i++)
+            for (int i = 0; i < RowCount; i++)
             {
-                for (int j = 0; j < RowCount; j++)
+                for (int j = 0; j < ColumnCount; j++)
                 {
                     Grid[i, j] = ZoneState.Empty;
                 }
             }
             foreach (Point pt in obstaclePoints)
             {
-                Grid[pt.X, pt.Y] = ZoneState.Blocked;
+                Grid[pt.Y, pt.X] = ZoneState.Blocked;
             }
         }
 
@@ -125,20 +125,23 @@ namespace WarehouseRobot
             foreach (CompassDirections direction in allCompassDirections)
             {
                 Point nextCell = GeometryHelper.GetAdjacentPoint(currenNode.Location, direction);
-                if (!routePlanData.CellMap.Contains(nextCell)) //相邻点已经在地图之外
+                if (!routePlanData.CellMap.Contains(nextCell)) 
                 {
+                    // 相邻点已经在地图之外
                     continue;
                 }
 
-                if (Grid[nextCell.X, nextCell.Y] == ZoneState.Blocked) //下一个Cell为障碍物
+                if (Grid[nextCell.Y, nextCell.X] == ZoneState.Blocked)
                 {
+                    // 下一个Cell为障碍物
                     continue;
                 }
 
-                int costG = this.costGetter.GetCost(currenNode.Location, direction);
+                int costG = costGetter.GetCost(currenNode.Location, direction);
                 int costH = Math.Abs(nextCell.X - routePlanData.Destination.X) + Math.Abs(nextCell.Y - routePlanData.Destination.Y);
-                if (costH == 0) //costH为0，表示相邻点就是目的点，规划完成，构造结果路径
+                if (costH == 0) 
                 {
+                    // costH为0，表示相邻点就是目的点，规划完成，构造结果路径
                     IList<Point> route = new List<Point>();
                     route.Add(routePlanData.Destination);
                     route.Insert(0, currenNode.Location);

@@ -13,57 +13,47 @@ namespace WarehouseRobot
     /// </summary>
     public class RoutePlanData
     {
-        #region CellMap
-        private Rectangle cellMap;
         /// <summary>
-        /// CellMap 地图的矩形大小。经过单元格标准处理。
+        /// 地图的矩形大小。经过单元格标准处理。
         /// </summary>
         public Rectangle CellMap
         {
-            get { return cellMap; }
+            get;
         }
-        #endregion
 
-        #region ClosedList
-        private IList<AStarNode> closedList = new List<AStarNode>();
         /// <summary>
         /// ClosedList 关闭列表，即存放已经遍历处理过的节点。
         /// </summary>
         public IList<AStarNode> ClosedList
         {
-            get { return closedList; }
-        }
-        #endregion
+            get;
+        } = new List<AStarNode>();
 
-        #region OpenedList
-        private IList<AStarNode> openedList = new List<AStarNode>();
         /// <summary>
         /// OpenedList 开放列表，即存放已经开发但是还未处理的节点。
         /// </summary>
         public IList<AStarNode> OpenedList
         {
-            get { return openedList; }
-        }
-        #endregion
+            get;
+        } = new List<AStarNode>();
 
-        #region Destination
-        private Point destination;
         /// <summary>
         /// Destination 目的节点的位置。
         /// </summary>
         public Point Destination
         {
-            get { return destination; }
+            get;
         }
-        #endregion
 
-        #region Ctor
-        public RoutePlanData(Rectangle map, Point _destination)
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="map"></param>
+        /// <param name="destination"></param>
+        public RoutePlanData(Rectangle map, Point destination)
         {
-            this.cellMap = map;
-            this.destination = _destination;
+            CellMap = map;
+            Destination = destination;
         }
-
-        #endregion
     }
 }

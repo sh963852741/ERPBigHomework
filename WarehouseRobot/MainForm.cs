@@ -58,6 +58,13 @@ namespace WarehouseRobot
                 Point pos = keyValuePair.Key.CurrentPosition;
                 graphics.FillRectangle(robotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
             }
+
+            /* 画出所有的出生点 */
+            Brush beginPointBrush = new SolidBrush(Color.LightGreen);
+            foreach (Point pos in beginPoints)
+            {
+                graphics.FillRectangle(beginPointBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+            }
         }
 
         private void BeginSimulateButton_Click(object sender, EventArgs e)
@@ -106,6 +113,7 @@ namespace WarehouseRobot
                 }
             });
 
+            beginSimulateButton.Enabled = false;
             setBeginButton.Enabled = false;
             setObstacleButton.Enabled = false;
             mapState = MapState.Unknown;
@@ -156,7 +164,6 @@ namespace WarehouseRobot
             grid = GridGenerator.GetGrid(maxRow, maxCol);
 
             beginSimulateButton.Enabled = true;
-            addTaskButton.Enabled = true;
             setBeginButton.Enabled = true;
             setObstacleButton.Enabled = true;
         }
@@ -165,6 +172,7 @@ namespace WarehouseRobot
         {
             tokenSource.Cancel();
             drawButton.Enabled = true;
+            beginSimulateButton.Enabled = true;
         }
 
         private void AddTaskButton_Click(object sender, EventArgs e)
@@ -275,6 +283,11 @@ namespace WarehouseRobot
             setBeginButton.Enabled = true;
             toolStripStatusLabel.Text = string.Empty;
             mapState = MapState.SettingObstaclePoint;
+        }
+
+        private void SimulatePanel_SizeChanged(object sender, EventArgs e)
+        {
+            graphics = simulatePanel.CreateGraphics();
         }
     }
 }

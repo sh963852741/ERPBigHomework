@@ -27,10 +27,13 @@ namespace WarehouseRobot
         {
             get; set;
         }
-/*        public List<Point> History
+        /// <summary>
+        /// 机器人的历史路径
+        /// </summary>
+        public List<Point> History
         {
             get; set;
-        } = new();*/
+        } = new();
         /// <summary>
         /// 机器人状态
         /// </summary>
@@ -56,7 +59,7 @@ namespace WarehouseRobot
             {
                 CurrentPosition = Route[0];
                 Route.RemoveAt(0);
-                //History.Add(CurrentPosition);
+                History.Add(CurrentPosition);
                 Console.WriteLine(Route.Count);
                 if (Route.Count == 0)
                 {
@@ -80,14 +83,13 @@ namespace WarehouseRobot
             else
             {
                 Route = route;
-                //Console.WriteLine(route);
                 State = RobotState.Running;
             }
         }
         public void Reset()
         {
             State = RobotState.Idle;
-            //History.Clear();
+            History.Clear();
             if (Route == null)
                 return;
             Route.Clear();

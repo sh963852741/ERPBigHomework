@@ -66,13 +66,16 @@ namespace WarehouseRobot
             // 
             // simulatePanel
             // 
-            this.simulatePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.simulatePanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.simulatePanel.BackColor = System.Drawing.SystemColors.Control;
             this.simulatePanel.Location = new System.Drawing.Point(9, 12);
             this.simulatePanel.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.simulatePanel.Name = "simulatePanel";
-            this.simulatePanel.Size = new System.Drawing.Size(1038, 657);
+            this.simulatePanel.Size = new System.Drawing.Size(1038, 644);
             this.simulatePanel.TabIndex = 1;
+            this.simulatePanel.SizeChanged += new System.EventHandler(this.SimulatePanel_SizeChanged);
             this.simulatePanel.Click += new System.EventHandler(this.SimulatePanel_Click);
             // 
             // drawButton
@@ -228,7 +231,7 @@ namespace WarehouseRobot
             this.groupBox1.Controls.Add(this.addTaskButton);
             this.groupBox1.Location = new System.Drawing.Point(1052, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 657);
+            this.groupBox1.Size = new System.Drawing.Size(200, 644);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "groupBox1";

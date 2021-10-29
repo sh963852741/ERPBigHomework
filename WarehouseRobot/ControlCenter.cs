@@ -15,8 +15,8 @@ namespace WarehouseRobot
         /// 所有的机器人
         /// </summary>
         public List<Robot> Robots
-        { 
-            get; 
+        {
+            get;
             private set;
         } = new();
         /// <summary>
@@ -234,6 +234,34 @@ namespace WarehouseRobot
                 Console.SetCursorPosition(position.X * 2, position.Y);
                 Console.Write("X ");
                 Console.ResetColor();
+            }
+        }
+        public void Print(Graphics g)
+        {
+            Brush brush = new SolidBrush(Color.White);
+            for (uint i = 0; i < rowCount; ++i)
+            {
+                for (uint j = 0; j < columnCount; ++j)
+                {
+                    g.FillRectangle(brush, j * 20 + 1, i * 20 + 1, 19, 19);
+                }
+            }
+
+            brush = new SolidBrush(Color.Black);
+            for (uint i = 0; i < rowCount; ++i)
+            {
+                for (uint j = 0; j < columnCount; ++j)
+                {
+                    if (grid[i, j] == ZoneState.Blocked)
+                        g.FillRectangle(brush, j * 20 + 1, i * 20 + 1, 19, 19);
+                }
+            }
+
+            brush = new SolidBrush(Color.Red);
+            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in RunningTasks)
+            {
+                Point pos = keyValuePair.Key.CurrentPosition;
+                g.FillRectangle(brush, pos.X * 20 + 1, pos.Y * 20 + 1, 19, 19);
             }
         }
     }

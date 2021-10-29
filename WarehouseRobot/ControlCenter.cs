@@ -10,15 +10,23 @@ namespace WarehouseRobot
 {
     public class ControlCenter
     {
-
         //private Grid grid = null;
         public List<Robot> robots = new();
         public Dictionary<Robot, TransportTask> runningTasks = new();
         AStarRoutePlanner aStarRoutePlanner = null;
-        private static int ROBOTS_NUM = 5;//机器人数量
-        private static int lineCount = 50;
-        private static int columnCount = 30;
-        ZoneState[][] grid = null;
+        /// <summary>
+        /// 机器人数量
+        /// </summary>
+        private const int ROBOTS_NUM = 5;
+        /// <summary>
+        /// 有多少行
+        /// </summary>
+        private const int lineCount = 50;
+        /// <summary>
+        /// 有多少列
+        /// </summary>
+        private const int columnCount = 30;
+        ZoneState[,] grid = null;
         public (int,int) GetSize()
         {
             return (columnCount,lineCount);
@@ -34,13 +42,9 @@ namespace WarehouseRobot
                 robots.Add(new Robot());
             }
             aStarRoutePlanner = new AStarRoutePlanner( columnCount, lineCount, new SimpleCostGetter());
-            grid = aStarRoutePlanner.grid;
+            grid = aStarRoutePlanner.Grid;
             // grid = new Grid(COL, ROW);
         }
-        //public ControlCenter(Grid grid)
-        //{
-        //    this.grid = grid;
-        //}
         /// <summary>
         /// 计算下一个时间点时机器人的信息
         /// </summary>
@@ -166,7 +170,7 @@ namespace WarehouseRobot
                 for (uint j = 0; j < maxCol; ++j)
                 {
                     Console.SetCursorPosition((int)j * 2, (int)i);
-                    if (grid[i][j] == Enum.ZoneState.Blocked)
+                    if (grid[i,j] == Enum.ZoneState.Blocked)
                     {
 
                         Console.Write("#");

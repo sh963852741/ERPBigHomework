@@ -13,6 +13,12 @@ namespace WarehouseRobot
         /// </summary>
     public interface ICostGetter
     {
-        int GetCost(Point currentNodeLoaction, CompassDirections moveDirection);
+        /// <summary>
+        /// 获取从一个点移动到另一个点的花费
+        /// </summary>
+        /// <param name="currentNodeLocation">当前点的位置</param>
+        /// <param name="moveDirection">移动方向</param>
+        /// <returns>花费</returns>
+        int GetCost(Point currentNodeLocation, CompassDirections moveDirection);
     }
 }

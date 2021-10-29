@@ -11,7 +11,7 @@ namespace ERPBigHomework
         static Random r = new();
         static void Main(string[] args)
         {
-            //A星算法测试
+            #region A星算法测试
             /* AStarRoutePlanner aStarRoutePlanner = new AStarRoutePlanner();
              IList<Point> obstaclePoints = new List<Point>();
              obstaclePoints.Add(new Point(2, 4));
@@ -26,6 +26,7 @@ namespace ERPBigHomework
              {
                  Console.WriteLine(item);
              }*/
+            #endregion
             ControlCenter cc = new();
 
             while (!(Console.KeyAvailable && Console.ReadKey().Key == ConsoleKey.Escape))

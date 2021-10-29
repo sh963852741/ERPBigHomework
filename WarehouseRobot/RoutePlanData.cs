@@ -9,8 +9,8 @@ using WarehouseRobot.Enum;
 namespace WarehouseRobot
 {
     /// <summary>
-        /// RoutePlanData 用于封装一次路径规划过程中的规划信息。
-        /// </summary>
+    /// 一次路径规划过程中的规划信息。
+    /// </summary>
     public class RoutePlanData
     {
         #region CellMap

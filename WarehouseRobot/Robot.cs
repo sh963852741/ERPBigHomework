@@ -8,12 +8,21 @@ using WarehouseRobot.Enum;
 
 namespace WarehouseRobot
 {
+    /// <summary>
+    /// 机器人
+    /// </summary>
     public class Robot
     {
+        /// <summary>
+        /// 机器人ID，唯一标识
+        /// </summary>
         public Guid Id
         {
             get;set;
         }
+        /// <summary>
+        /// 记录机器人行动的路径
+        /// </summary>
         public IList<Point> Route
         {
             get; set;
@@ -22,10 +31,16 @@ namespace WarehouseRobot
         {
             get; set;
         } = new();*/
+        /// <summary>
+        /// 机器人状态
+        /// </summary>
         public RobotState State
         {
             get; set;
         }
+        /// <summary>
+        /// 机器人当前位置
+        /// </summary>
         public Point CurrentPosition
         {
             get; set;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WarehouseRobot.Enum;
+using WarehouseRobot.Utility;
 
 namespace WarehouseRobot
 {
@@ -16,96 +17,101 @@ namespace WarehouseRobot
     /// </summary>
     public class AStarRoutePlanner
     {
-        
-        private int columnCount; //反映地图宽度，对应X坐标
-        private int lineCount;   //反映地图高度，对应Y坐标
-        private ICostGetter costGetter = new SimpleCostGetter();
-        public ZoneState[][] grid; //地图，维度：Column * Row        
+        private readonly static Random r = new();
+        /// <summary>
+        /// 地图宽度（X坐标）
+        /// </summary>
+        public int ColumnCount { get; }
+        /// <summary>
+        /// 地图高度(Y坐标)
+        /// </summary>
+        public int RowCount { get; }
+        /// <summary>
+        /// 计算移动花费
+        /// </summary>
+        private readonly ICostGetter costGetter = new SimpleCostGetter();
+        /// <summary>
+        /// 地图
+        /// </summary>
+        public ZoneState[,] Grid { get; set; }
 
-
-        #region Ctor
-        public AStarRoutePlanner() : this(30, 30, new SimpleCostGetter())
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="columnCount"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="costGetter"></param>
+        public AStarRoutePlanner(int columnCount, int rowCount, ICostGetter costGetter)
         {
-            this.Initialize();
-        }
-        public AStarRoutePlanner( int _columnCount, int _lineCount, ICostGetter _costGetter)
-        {
-            this.lineCount = _lineCount;
-            this.columnCount = _columnCount;
-            this.costGetter = _costGetter;
+            RowCount = rowCount;
+            ColumnCount = columnCount;
+            this.costGetter = costGetter;
 
-            this.Initialize();
+            Initialize();
         }
 
         /// <summary>
-        /// InitializeObstacles 将所有位置进行随机初始化。
+        /// 将所有位置进行随机初始化。
         /// </summary>
         public void Initialize()
         {
-     ;
-            this.grid = new ZoneState[this.columnCount][];
-            for (int i = 0; i < this.columnCount; i++)
-            {
-                this.grid[i] = new ZoneState[this.lineCount];
-            }
+            Grid = new ZoneState[ColumnCount, RowCount];
 
-            Random r = new Random();
-
-            for (int i = 0; i < this.columnCount; i++)
+            for (int i = 0; i < ColumnCount; i++)
             {
-                for (int j = 0; j < this.lineCount; j++)
+                for (int j = 0; j < RowCount; j++)
                 {
 
                     if (r.Next() % 10 == 0)
-                        this.grid[i][j] = ZoneState.Blocked;
+                        Grid[i, j] = ZoneState.Blocked;
                     else
-                        this.grid[i][j] = ZoneState.Empty;
+                        Grid[i, j] = ZoneState.Empty;
                 }
             }
         }
 
         /// <summary>
-        /// Initialize 指定障碍物位置，进行初始化。
+        /// 指定障碍物位置，进行初始化。
         /// </summary>
+        /// <param name="obstaclePoints">指定障碍物的位置</param>
         public void Initialize(IList<Point> obstaclePoints)
         {
-            this.grid = new ZoneState[this.columnCount][];
-            for (int i = 0; i < this.columnCount; i++)
+            Grid = new ZoneState[ColumnCount, RowCount];
+
+            for (int i = 0; i < ColumnCount; i++)
             {
-                this.grid[i] = new ZoneState[this.lineCount];
-            }
-            for (int i = 0; i < this.columnCount; i++)
-            {
-                for (int j = 0; j < this.lineCount; j++)
+                for (int j = 0; j < RowCount; j++)
                 {
-                        this.grid[i][j] = ZoneState.Empty;
+                    Grid[i, j] = ZoneState.Empty;
                 }
             }
-            if (grid != null)
+            foreach (Point pt in obstaclePoints)
             {
-                foreach (Point pt in obstaclePoints)
-                {
-                    this.grid[pt.X][pt.Y] = ZoneState.Blocked;
-                }
+                Grid[pt.X, pt.Y] = ZoneState.Blocked;
             }
         }
-        #endregion
 
-
-        #region Plan
+        /// <summary>
+        /// 制作从起点到终点的计划
+        /// </summary>
+        /// <param name="start">起点</param>
+        /// <param name="destination">终点</param>
+        /// <returns>返回路径</returns>
         public IList<Point> Plan(Point start, Point destination)
         {
-            Rectangle map = new Rectangle(0, 0, this.columnCount, this.lineCount);
-            if ((!map.Contains(start)) || (!map.Contains(destination)))
+            Rectangle map = new(0, 0, ColumnCount, RowCount);
+            if (!map.Contains(start))
             {
-                Console.WriteLine(start);
-                Console.WriteLine(destination);
-                throw new Exception("StartPoint or Destination not in the current map!");
+                throw new ArgumentOutOfRangeException(nameof(start), start, "StartPoint not in current map.");
+            }
+            if (!map.Contains(destination))
+            {
+                throw new ArgumentOutOfRangeException(nameof(destination), destination, "Destination not in current map.");
             }
 
-            RoutePlanData routePlanData = new RoutePlanData(map, destination);
+            RoutePlanData routePlanData = new(map, destination);
 
-            AStarNode startNode = new AStarNode(start, null, 0, 0);
+            AStarNode startNode = new(start, null, 0, 0);
             routePlanData.OpenedList.Add(startNode);
 
             AStarNode currenNode = startNode;
@@ -113,12 +119,10 @@ namespace WarehouseRobot
             //从起始节点开始进行递归调用
             return DoPlan(routePlanData, currenNode);
         }
-        #endregion
 
-        #region DoPlan
         private IList<Point> DoPlan(RoutePlanData routePlanData, AStarNode currenNode)
         {
-            IList<CompassDirections> allCompassDirections = CompassDirectionsHelper.GetAllCompassDirections();
+            IList<CompassDirections> allCompassDirections = CompassDirectionsHelper.GetReasonableCompassDirections();
             foreach (CompassDirections direction in allCompassDirections)
             {
                 Point nextCell = GeometryHelper.GetAdjacentPoint(currenNode.Location, direction);
@@ -127,7 +131,7 @@ namespace WarehouseRobot
                     continue;
                 }
 
-                if (this.grid[nextCell.X][nextCell.Y]==ZoneState.Blocked) //下一个Cell为障碍物
+                if (this.Grid[nextCell.X,nextCell.Y]==ZoneState.Blocked) //下一个Cell为障碍物
                 {
                     continue;
                 }
@@ -178,12 +182,10 @@ namespace WarehouseRobot
             //对开放列表中的下一个代价最小的节点作递归调用
             return this.DoPlan(routePlanData, minCostNode);
         }
-        #endregion
 
-        #region GetNodeOnLocation
         /// <summary>
-                /// GetNodeOnLocation 目标位置location是否已存在于开放列表或关闭列表中
-                /// </summary>       
+        /// 目标位置location是否已存在于开放列表或关闭列表中
+        /// </summary>       
         private AStarNode GetNodeOnLocation(Point location, RoutePlanData routePlanData)
         {
             foreach (AStarNode temp in routePlanData.OpenedList)
@@ -204,12 +206,10 @@ namespace WarehouseRobot
 
             return null;
         }
-        #endregion
 
-        #region GetMinCostNode
         /// <summary>
-                /// GetMinCostNode 从开放列表中获取代价F最小的节点，以启动下一次递归
-                /// </summary>      
+        /// 从开放列表中获取代价F最小的节点，以启动下一次递归
+        /// </summary>      
         private AStarNode GetMinCostNode(IList<AStarNode> openedList)
         {
             if (openedList.Count == 0)
@@ -228,6 +228,5 @@ namespace WarehouseRobot
 
             return target;
         }
-        #endregion
     }
 }

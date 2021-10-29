@@ -6,11 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using WarehouseRobot.Enum;
 
-namespace WarehouseRobot
+namespace WarehouseRobot.Utility
 {
     public static class GeometryHelper
     {
-        #region GetAdjacentPoint
         /// <summary>
         /// GetAdjacentPoint 获取某个方向上的相邻点
         /// </summary>       
@@ -56,6 +55,5 @@ namespace WarehouseRobot
                     }
             }
         }
-        #endregion     
-    }
+    }
 }

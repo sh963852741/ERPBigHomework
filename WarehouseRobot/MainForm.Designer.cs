@@ -106,6 +106,7 @@ namespace WarehouseRobot
             // 
             // stopSimulateButton
             // 
+            this.stopSimulateButton.Enabled = false;
             this.stopSimulateButton.Location = new System.Drawing.Point(63, 555);
             this.stopSimulateButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.stopSimulateButton.Name = "stopSimulateButton";
@@ -264,6 +265,7 @@ namespace WarehouseRobot
             // 
             // setTaskPointButton
             // 
+            this.setTaskPointButton.Enabled = false;
             this.setTaskPointButton.Location = new System.Drawing.Point(7, 188);
             this.setTaskPointButton.Name = "setTaskPointButton";
             this.setTaskPointButton.Size = new System.Drawing.Size(188, 25);

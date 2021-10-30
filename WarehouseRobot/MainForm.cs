@@ -102,6 +102,7 @@ namespace WarehouseRobot
                 cc = new ControlCenter(grid);
                 cc.OnOneTaskFinished += ReflashInfo;
             }
+            cc.SetGird(grid);
             drawButton.Enabled = false;
             addTaskButton.Enabled = true;
             tokenSource = new();
@@ -131,6 +132,7 @@ namespace WarehouseRobot
             beginSimulateButton.Enabled = false;
             setBeginButton.Enabled = false;
             setObstacleButton.Enabled = false;
+            stopSimulateButton.Enabled = true;
             mapState = MapState.Unknown;
             allRobotCountLabel.Text = $"总共机器人数：{cc.Robots.Count}";
             task.Start();
@@ -193,6 +195,8 @@ namespace WarehouseRobot
             beginSimulateButton.Enabled = true;
             setBeginButton.Enabled = true;
             setObstacleButton.Enabled = true;
+            setTaskPointButton.Enabled = true;
+            mapState = MapState.Unknown;
         }
 
         private void StopSimulateButton_Click(object sender, EventArgs e)
@@ -200,6 +204,10 @@ namespace WarehouseRobot
             tokenSource.Cancel();
             drawButton.Enabled = true;
             beginSimulateButton.Enabled = true;
+            setObstacleButton.Enabled = true;
+            setBeginButton.Enabled = true;
+            setTaskPointButton.Enabled = true;
+            stopSimulateButton.Enabled = false;
         }
 
         private void AddTaskButton_Click(object sender, EventArgs e)

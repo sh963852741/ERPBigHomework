@@ -74,6 +74,12 @@ namespace WarehouseRobot
             this.grid = grid;
             aStarRoutePlanner = new AStarRoutePlanner(grid, new SimpleCostGetter());
         }
+
+        public void SetGird(ZoneState[,] grid)
+        {
+            this.grid = grid;
+            aStarRoutePlanner = new AStarRoutePlanner(grid, new SimpleCostGetter());
+        }
         /// <summary>
         /// 计算下一个时间点时机器人的信息
         /// </summary>

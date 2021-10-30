@@ -20,6 +20,7 @@ namespace WarehouseRobot
         private ControlCenter cc = null;
         private HashSet<Point> obstaclePoints = new();
         private HashSet<Point> beginPoints = new();
+        private Point[] taskPoints = new Point[2];
         private int maxRow = 0;
         private int maxCol = 0;
         private const int gridGap = 20;
@@ -35,6 +36,9 @@ namespace WarehouseRobot
             graphics = simulatePanel.CreateGraphics();
         }
 
+        /// <summary>
+        /// 画出地图的基础架构
+        /// </summary>
         private void PrintMap()
         {
             /* 清空所有的格子（含障碍物） */
@@ -50,6 +54,11 @@ namespace WarehouseRobot
                         graphics.FillRectangle(obstacleBrush, j * gridGap + 1, i * gridGap + 1, gridGap - 1, gridGap - 1);
                 }
             }
+        }
+
+        private void PrintFinalMap()
+        {
+            PrintMap();
 
             /* 画出所有的机器人 */
             Brush robotBrush = new SolidBrush(Color.Red);
@@ -65,6 +74,8 @@ namespace WarehouseRobot
             {
                 graphics.FillRectangle(beginPointBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
             }
+
+            DrawTaskPoint();
         }
 
         private void BeginSimulateButton_Click(object sender, EventArgs e)
@@ -86,9 +97,13 @@ namespace WarehouseRobot
             //}
             #endregion
 
-            cc = new ControlCenter(grid);
-            cc.OnOneTaskFinished += ReflashInfo;
+            if(cc == null)
+            {
+                cc = new ControlCenter(grid);
+                cc.OnOneTaskFinished += ReflashInfo;
+            }
             drawButton.Enabled = false;
+            addTaskButton.Enabled = true;
             tokenSource = new();
 
             CancellationToken token = tokenSource.Token;
@@ -96,18 +111,18 @@ namespace WarehouseRobot
             {
                 while (!token.IsCancellationRequested)
                 {
-                    if (cc.RunningTasks.Count < cc.RobotNum)
-                    {
-                        int maxRow = cc.Size.Item1;
-                        int maxCol = cc.Size.Item2;
-                        cc.AssignTask(new TransportTask()
-                        {
-                            from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
-                            to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
-                        });
-                    }
+                    //if (cc.RunningTasks.Count < cc.RobotNum)
+                    //{
+                    //    int maxRow = cc.Size.Item1;
+                    //    int maxCol = cc.Size.Item2;
+                    //    cc.AssignTask(new TransportTask()
+                    //    {
+                    //        from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
+                    //        to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
+                    //    });
+                    //}
                     cc.NextTick();
-                    PrintMap();
+                    PrintFinalMap();
 
                     Thread.Sleep(1000);
                 }
@@ -150,6 +165,8 @@ namespace WarehouseRobot
                 else ClearMap();
             }
 
+            targetRowUpDown.Maximum = beginRowUpDown.Maximum = _maxRow;
+            targetColUpDown.Maximum = beginColUpDown.Maximum = _maxCol;
             maxRow = _maxRow;
             maxCol = _maxCol;
 
@@ -161,7 +178,17 @@ namespace WarehouseRobot
                     graphics.DrawRectangle(p, j * gridGap, i * gridGap, gridGap, gridGap);
                 }
             }
-            grid = GridGenerator.GetGrid(maxRow, maxCol);
+
+            if(genObstacleCheckBox.Checked)
+            {
+                grid = GridGenerator.GetGrid(out IList<Point> obstacle, maxRow, maxCol);
+                obstaclePoints = obstacle.ToHashSet();
+                PrintMap();
+            }
+            else
+            {
+                grid = GridGenerator.GetGrid(obstaclePoints.ToList(), maxRow, maxCol);
+            }
 
             beginSimulateButton.Enabled = true;
             setBeginButton.Enabled = true;
@@ -179,8 +206,8 @@ namespace WarehouseRobot
         {
             cc.AssignTask(new TransportTask()
             {
-                from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
-                to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
+                from = taskPoints[0] - new Size(1, 1),
+                to = taskPoints[1] - new Size(1, 1)
             });
 
             /* 更新必要信息 */
@@ -200,6 +227,13 @@ namespace WarehouseRobot
 
         private void SimulatePanel_Click(object sender, EventArgs e)
         {
+            simulatePanel.Focus();
+            MouseEventArgs @event = (MouseEventArgs)e;
+            int x = @event.X / gridGap;
+            int y = @event.Y / gridGap;
+
+            if (x >= maxCol || y >= maxRow) return;
+
             if (mapState == MapState.Unknown)
             {
                 if (grid == null)
@@ -210,12 +244,6 @@ namespace WarehouseRobot
             }
             else if (mapState == MapState.SettingObstaclePoint)
             {
-                MouseEventArgs @event = (MouseEventArgs)e;
-                int x = @event.X / gridGap;
-                int y = @event.Y / gridGap;
-
-                if (x >= maxCol || y >= maxRow) return;
-
                 Point p = new(x, y);
                 if (obstaclePoints.Add(p))
                 {
@@ -234,12 +262,6 @@ namespace WarehouseRobot
             }
             else if (mapState == MapState.SettingBeginPoint)
             {
-                MouseEventArgs @event = (MouseEventArgs)e;
-                int x = @event.X / gridGap;
-                int y = @event.Y / gridGap;
-
-                if (x >= maxCol || y >= maxRow) return;
-
                 Point p = new(x, y);
                 if (beginPoints.Add(p))
                 {
@@ -256,6 +278,44 @@ namespace WarehouseRobot
                 }
                 grid = GridGenerator.GetGrid(obstaclePoints.ToList(), maxRow, maxCol);
             }
+            else if(mapState == MapState.SettingTaskPoint)
+            {
+                Point p = new(x, y);
+                if(obstaclePoints.Contains(p))
+                {
+                    return;
+                }
+
+                Point p1 = new(x+1, y+1);
+                if (taskPoints[0] == p1)
+                {
+                    // 取消当前点
+                    taskPoints[0] = Point.Empty;
+                    SetCellColor(p, defaultColor);
+                }
+                else if(taskPoints[1] == p1)
+                {
+                    // 取消当前点
+                    taskPoints[1] = Point.Empty;
+                    SetCellColor(p, defaultColor);
+                }
+                else if(taskPoints[0] == Point.Empty)
+                {
+                    taskPoints[0] = p1;
+                }
+                else if (taskPoints[1] == Point.Empty)
+                {
+                    taskPoints[1] = p1;
+                }
+                else
+                {
+                    SetCellColor(taskPoints[0] - new Size(1, 1), defaultColor);
+                    taskPoints[0] = taskPoints[1];
+                    taskPoints[1] = p1;
+                }
+                DrawTaskPoint();
+                SetUpDownCount();
+            }
             else
             {
                 throw new InvalidOperationException();
@@ -266,13 +326,15 @@ namespace WarehouseRobot
         {
             Unknown,
             SettingBeginPoint,
-            SettingObstaclePoint
+            SettingObstaclePoint,
+            SettingTaskPoint
         }
 
         private void SetBeginButton_Click(object sender, EventArgs e)
         {
             setBeginButton.Enabled = false;
             setObstacleButton.Enabled = true;
+            setTaskPointButton.Enabled = true;
             toolStripStatusLabel.Text = string.Empty;
             mapState = MapState.SettingBeginPoint;
         }
@@ -281,6 +343,7 @@ namespace WarehouseRobot
         {
             setObstacleButton.Enabled = false;
             setBeginButton.Enabled = true;
+            setTaskPointButton.Enabled = true;
             toolStripStatusLabel.Text = string.Empty;
             mapState = MapState.SettingObstaclePoint;
         }
@@ -288,6 +351,64 @@ namespace WarehouseRobot
         private void SimulatePanel_SizeChanged(object sender, EventArgs e)
         {
             graphics = simulatePanel.CreateGraphics();
+        }
+
+        private void SetTaskPointButton_Click(object sender, EventArgs e)
+        {
+            setTaskPointButton.Enabled = false;
+            setObstacleButton.Enabled = true;
+            setBeginButton.Enabled = true;
+            toolStripStatusLabel.Text = string.Empty;
+            mapState = MapState.SettingTaskPoint;
+        }
+
+        /// <summary>
+        /// 画出任务起讫点（如果有）
+        /// </summary>
+        private void DrawTaskPoint()
+        {
+            if(!taskPoints[0].IsEmpty)
+                SetCellColor(taskPoints[0] - new Size(1, 1), Color.LightBlue);
+            if (!taskPoints[1].IsEmpty)
+                SetCellColor(taskPoints[1] - new Size(1, 1), Color.DarkBlue);
+        }
+
+        /// <summary>
+        /// 从画面中清除任务起讫点
+        /// </summary>
+        private void UnDrawTaskPoint()
+        {
+            if (!taskPoints[0].IsEmpty)
+                SetCellColor(taskPoints[0] - new Size(1, 1), defaultColor);
+            if (!taskPoints[1].IsEmpty)
+                SetCellColor(taskPoints[1] - new Size(1, 1), defaultColor);
+        }
+
+        private void GetUpDownCount()
+        {
+            taskPoints[0].X= (int)beginColUpDown.Value;
+            taskPoints[0].Y=(int)beginRowUpDown.Value;
+            taskPoints[1].X=(int)targetColUpDown.Value;
+            taskPoints[1].Y=(int)targetRowUpDown.Value;
+        }
+
+        private void SetUpDownCount()
+        {
+            beginColUpDown.Value = taskPoints[0].X;
+            beginRowUpDown.Value = taskPoints[0].Y;
+            targetColUpDown.Value = taskPoints[1].X;
+            targetRowUpDown.Value = taskPoints[1].Y;
+        }
+
+        private void UpDown_ValueChanged(object sender, EventArgs e)
+        {
+            Control ctrl = sender as Control;
+            if (ctrl != null && ctrl.Focused && mapState == MapState.SettingTaskPoint)
+            {
+                UnDrawTaskPoint();
+                GetUpDownCount();
+                DrawTaskPoint();
+            }
         }
     }
 }

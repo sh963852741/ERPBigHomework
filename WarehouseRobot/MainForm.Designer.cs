@@ -44,11 +44,26 @@ namespace WarehouseRobot
             this.setBeginButton = new System.Windows.Forms.Button();
             this.setObstacleButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.setTaskPointButton = new System.Windows.Forms.Button();
+            this.genBeginPointCheckBox = new System.Windows.Forms.CheckBox();
+            this.genObstacleCheckBox = new System.Windows.Forms.CheckBox();
+            this.targetColUpDown = new System.Windows.Forms.NumericUpDown();
+            this.targetRowUpDown = new System.Windows.Forms.NumericUpDown();
+            this.beginColUpDown = new System.Windows.Forms.NumericUpDown();
+            this.beginRowUpDown = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.rowCountUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.colCountUpDown)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.targetColUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targetRowUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.beginColUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.beginRowUpDown)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -80,12 +95,12 @@ namespace WarehouseRobot
             // 
             // drawButton
             // 
-            this.drawButton.Location = new System.Drawing.Point(53, 299);
+            this.drawButton.Location = new System.Drawing.Point(9, 296);
             this.drawButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.drawButton.Name = "drawButton";
-            this.drawButton.Size = new System.Drawing.Size(87, 25);
+            this.drawButton.Size = new System.Drawing.Size(183, 25);
             this.drawButton.TabIndex = 2;
-            this.drawButton.Text = "绘制仓库";
+            this.drawButton.Text = "绘制仓库地图";
             this.drawButton.UseVisualStyleBackColor = true;
             this.drawButton.Click += new System.EventHandler(this.DrawButton_Click);
             // 
@@ -96,13 +111,13 @@ namespace WarehouseRobot
             this.stopSimulateButton.Name = "stopSimulateButton";
             this.stopSimulateButton.Size = new System.Drawing.Size(73, 25);
             this.stopSimulateButton.TabIndex = 3;
-            this.stopSimulateButton.Text = "停止计算";
+            this.stopSimulateButton.Text = "暂停计算";
             this.stopSimulateButton.UseVisualStyleBackColor = true;
             this.stopSimulateButton.Click += new System.EventHandler(this.StopSimulateButton_Click);
             // 
             // rowCountUpDown
             // 
-            this.rowCountUpDown.Location = new System.Drawing.Point(87, 242);
+            this.rowCountUpDown.Location = new System.Drawing.Point(43, 239);
             this.rowCountUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.rowCountUpDown.Name = "rowCountUpDown";
             this.rowCountUpDown.Size = new System.Drawing.Size(53, 23);
@@ -115,7 +130,7 @@ namespace WarehouseRobot
             // 
             // colCountUpDown
             // 
-            this.colCountUpDown.Location = new System.Drawing.Point(87, 271);
+            this.colCountUpDown.Location = new System.Drawing.Point(43, 268);
             this.colCountUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.colCountUpDown.Name = "colCountUpDown";
             this.colCountUpDown.Size = new System.Drawing.Size(53, 23);
@@ -129,7 +144,7 @@ namespace WarehouseRobot
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(53, 244);
+            this.label1.Location = new System.Drawing.Point(9, 241);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(32, 17);
@@ -139,7 +154,7 @@ namespace WarehouseRobot
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(53, 272);
+            this.label2.Location = new System.Drawing.Point(9, 269);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(32, 17);
@@ -149,10 +164,10 @@ namespace WarehouseRobot
             // addTaskButton
             // 
             this.addTaskButton.Enabled = false;
-            this.addTaskButton.Location = new System.Drawing.Point(63, 517);
+            this.addTaskButton.Location = new System.Drawing.Point(5, 453);
             this.addTaskButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.addTaskButton.Name = "addTaskButton";
-            this.addTaskButton.Size = new System.Drawing.Size(73, 25);
+            this.addTaskButton.Size = new System.Drawing.Size(190, 25);
             this.addTaskButton.TabIndex = 8;
             this.addTaskButton.Text = "增加任务";
             this.addTaskButton.UseVisualStyleBackColor = true;
@@ -216,6 +231,17 @@ namespace WarehouseRobot
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.setTaskPointButton);
+            this.groupBox1.Controls.Add(this.genBeginPointCheckBox);
+            this.groupBox1.Controls.Add(this.genObstacleCheckBox);
+            this.groupBox1.Controls.Add(this.targetColUpDown);
+            this.groupBox1.Controls.Add(this.targetRowUpDown);
+            this.groupBox1.Controls.Add(this.beginColUpDown);
+            this.groupBox1.Controls.Add(this.beginRowUpDown);
+            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.label5);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.queuingTaskCountLabel);
             this.groupBox1.Controls.Add(this.setObstacleButton);
@@ -234,7 +260,135 @@ namespace WarehouseRobot
             this.groupBox1.Size = new System.Drawing.Size(200, 644);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "groupBox1";
+            this.groupBox1.Text = "界面配置";
+            // 
+            // setTaskPointButton
+            // 
+            this.setTaskPointButton.Location = new System.Drawing.Point(7, 188);
+            this.setTaskPointButton.Name = "setTaskPointButton";
+            this.setTaskPointButton.Size = new System.Drawing.Size(188, 25);
+            this.setTaskPointButton.TabIndex = 24;
+            this.setTaskPointButton.Text = "设置任务起讫点";
+            this.setTaskPointButton.UseVisualStyleBackColor = true;
+            this.setTaskPointButton.Click += new System.EventHandler(this.SetTaskPointButton_Click);
+            // 
+            // genBeginPointCheckBox
+            // 
+            this.genBeginPointCheckBox.AutoSize = true;
+            this.genBeginPointCheckBox.Location = new System.Drawing.Point(103, 269);
+            this.genBeginPointCheckBox.Name = "genBeginPointCheckBox";
+            this.genBeginPointCheckBox.Size = new System.Drawing.Size(87, 21);
+            this.genBeginPointCheckBox.TabIndex = 23;
+            this.genBeginPointCheckBox.Text = "生成出生点";
+            this.genBeginPointCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // genObstacleCheckBox
+            // 
+            this.genObstacleCheckBox.AutoSize = true;
+            this.genObstacleCheckBox.Checked = true;
+            this.genObstacleCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.genObstacleCheckBox.Location = new System.Drawing.Point(103, 241);
+            this.genObstacleCheckBox.Name = "genObstacleCheckBox";
+            this.genObstacleCheckBox.Size = new System.Drawing.Size(75, 21);
+            this.genObstacleCheckBox.TabIndex = 22;
+            this.genObstacleCheckBox.Text = "生成障碍";
+            this.genObstacleCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // targetColUpDown
+            // 
+            this.targetColUpDown.Location = new System.Drawing.Point(152, 424);
+            this.targetColUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.targetColUpDown.Name = "targetColUpDown";
+            this.targetColUpDown.Size = new System.Drawing.Size(40, 23);
+            this.targetColUpDown.TabIndex = 21;
+            this.targetColUpDown.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            this.targetColUpDown.ValueChanged += new System.EventHandler(this.UpDown_ValueChanged);
+            // 
+            // targetRowUpDown
+            // 
+            this.targetRowUpDown.Location = new System.Drawing.Point(56, 424);
+            this.targetRowUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.targetRowUpDown.Name = "targetRowUpDown";
+            this.targetRowUpDown.Size = new System.Drawing.Size(40, 23);
+            this.targetRowUpDown.TabIndex = 20;
+            this.targetRowUpDown.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            this.targetRowUpDown.ValueChanged += new System.EventHandler(this.UpDown_ValueChanged);
+            // 
+            // beginColUpDown
+            // 
+            this.beginColUpDown.Location = new System.Drawing.Point(152, 384);
+            this.beginColUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.beginColUpDown.Name = "beginColUpDown";
+            this.beginColUpDown.Size = new System.Drawing.Size(40, 23);
+            this.beginColUpDown.TabIndex = 19;
+            this.beginColUpDown.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            this.beginColUpDown.ValueChanged += new System.EventHandler(this.UpDown_ValueChanged);
+            // 
+            // beginRowUpDown
+            // 
+            this.beginRowUpDown.Location = new System.Drawing.Point(56, 384);
+            this.beginRowUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.beginRowUpDown.Name = "beginRowUpDown";
+            this.beginRowUpDown.Size = new System.Drawing.Size(40, 23);
+            this.beginRowUpDown.TabIndex = 18;
+            this.beginRowUpDown.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            this.beginRowUpDown.ValueChanged += new System.EventHandler(this.UpDown_ValueChanged);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(100, 426);
+            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(56, 17);
+            this.label6.TabIndex = 17;
+            this.label6.Text = "目标列：";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(7, 426);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(56, 17);
+            this.label5.TabIndex = 16;
+            this.label5.Text = "目标行：";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(100, 387);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(56, 17);
+            this.label4.TabIndex = 15;
+            this.label4.Text = "起始列：";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(5, 387);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(56, 17);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "起始行：";
             // 
             // statusStrip
             // 
@@ -267,6 +421,10 @@ namespace WarehouseRobot
             ((System.ComponentModel.ISupportInitialize)(this.colCountUpDown)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.targetColUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targetRowUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.beginColUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.beginRowUpDown)).EndInit();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
@@ -293,5 +451,16 @@ namespace WarehouseRobot
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
+        private System.Windows.Forms.NumericUpDown targetColUpDown;
+        private System.Windows.Forms.NumericUpDown targetRowUpDown;
+        private System.Windows.Forms.NumericUpDown beginColUpDown;
+        private System.Windows.Forms.NumericUpDown beginRowUpDown;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox genBeginPointCheckBox;
+        private System.Windows.Forms.CheckBox genObstacleCheckBox;
+        private System.Windows.Forms.Button setTaskPointButton;
     }
 }

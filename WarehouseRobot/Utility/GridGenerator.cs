@@ -12,8 +12,9 @@ namespace WarehouseRobot.Utility
     {
         private readonly static Random r = new();
 
-        public static ZoneState[,] GetGrid(int rowCount, int colCount)
+        public static ZoneState[,] GetGrid(out IList<Point> obstaclePoints, int rowCount, int colCount)
         {
+            obstaclePoints = new List<Point>();
             var grid = new ZoneState[rowCount, colCount];
 
             for (int i = 0; i < rowCount; i++)
@@ -21,7 +22,10 @@ namespace WarehouseRobot.Utility
                 for (int j = 0; j < colCount; j++)
                 {
                     if (r.Next() % 10 == 0)
+                    {
                         grid[i, j] = ZoneState.Blocked;
+                        obstaclePoints.Add(new Point(j, i));
+                    }
                     else
                         grid[i, j] = ZoneState.Empty;
                 }

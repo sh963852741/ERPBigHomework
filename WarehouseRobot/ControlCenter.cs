@@ -61,7 +61,7 @@ namespace WarehouseRobot
             {
                 Robots.Add(new Robot());
             }
-            grid = GridGenerator.GetGrid(rowCount, colCount);
+            grid = GridGenerator.GetGrid(out _, rowCount, colCount);
             aStarRoutePlanner = new AStarRoutePlanner(grid, new SimpleCostGetter());
         }
 

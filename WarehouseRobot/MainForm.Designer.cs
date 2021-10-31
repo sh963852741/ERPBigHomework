@@ -303,11 +303,6 @@ namespace WarehouseRobot
             this.targetColUpDown.Name = "targetColUpDown";
             this.targetColUpDown.Size = new System.Drawing.Size(40, 23);
             this.targetColUpDown.TabIndex = 21;
-            this.targetColUpDown.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
             this.targetColUpDown.ValueChanged += new System.EventHandler(this.UpDown_ValueChanged);
             // 
             // targetRowUpDown
@@ -317,11 +312,6 @@ namespace WarehouseRobot
             this.targetRowUpDown.Name = "targetRowUpDown";
             this.targetRowUpDown.Size = new System.Drawing.Size(40, 23);
             this.targetRowUpDown.TabIndex = 20;
-            this.targetRowUpDown.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
             this.targetRowUpDown.ValueChanged += new System.EventHandler(this.UpDown_ValueChanged);
             // 
             // beginColUpDown
@@ -331,11 +321,6 @@ namespace WarehouseRobot
             this.beginColUpDown.Name = "beginColUpDown";
             this.beginColUpDown.Size = new System.Drawing.Size(40, 23);
             this.beginColUpDown.TabIndex = 19;
-            this.beginColUpDown.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
             this.beginColUpDown.ValueChanged += new System.EventHandler(this.UpDown_ValueChanged);
             // 
             // beginRowUpDown
@@ -345,11 +330,6 @@ namespace WarehouseRobot
             this.beginRowUpDown.Name = "beginRowUpDown";
             this.beginRowUpDown.Size = new System.Drawing.Size(40, 23);
             this.beginRowUpDown.TabIndex = 18;
-            this.beginRowUpDown.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
             this.beginRowUpDown.ValueChanged += new System.EventHandler(this.UpDown_ValueChanged);
             // 
             // label6

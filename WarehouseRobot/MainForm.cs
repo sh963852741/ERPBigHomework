@@ -97,7 +97,7 @@ namespace WarehouseRobot
             //}
             #endregion
 
-            if(cc == null)
+            if (cc == null)
             {
                 cc = new ControlCenter(grid);
                 cc.OnOneTaskFinished += ReflashInfo;
@@ -134,6 +134,7 @@ namespace WarehouseRobot
             setObstacleButton.Enabled = false;
             stopSimulateButton.Enabled = true;
             mapState = MapState.Unknown;
+            addTaskButton.Enabled = true;
             allRobotCountLabel.Text = $"总共机器人数：{cc.Robots.Count}";
             task.Start();
         }
@@ -145,9 +146,15 @@ namespace WarehouseRobot
         }
 
         /// <summary>
-        /// 清除绘图
+        /// 清除地图
         /// </summary>
-        private void ClearMap() => graphics.Clear(defaultColor);
+        private void ClearMap() 
+        {
+            grid = null;
+            beginPoints.Clear();
+            obstaclePoints.Clear();
+            graphics.Clear(defaultColor);
+        }
 
         private void DrawButton_Click(object sender, EventArgs e)
         {
@@ -208,10 +215,22 @@ namespace WarehouseRobot
             setBeginButton.Enabled = true;
             setTaskPointButton.Enabled = true;
             stopSimulateButton.Enabled = false;
+            addTaskButton.Enabled = false;
         }
 
         private void AddTaskButton_Click(object sender, EventArgs e)
         {
+            if(taskPoints[0].IsEmpty||taskPoints[1].IsEmpty)
+            {
+                MessageBox.Show("任务的起点或终点不在地图内。", "无效输入", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if(taskPoints[0] == taskPoints[1])
+            {
+                MessageBox.Show("任务的起点和终点不能是同一个点。", "无效输入", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             cc.AssignTask(new TransportTask()
             {
                 from = taskPoints[0] - new Size(1, 1),

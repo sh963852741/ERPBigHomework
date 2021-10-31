@@ -98,6 +98,8 @@ namespace WarehouseRobot
                 }
                 r.Move();
             }
+           SolveConflict(DetectConflict());
+            
         }
         /// <summary>
         /// 为指挥中心分派任务
@@ -105,7 +107,7 @@ namespace WarehouseRobot
         /// <param name="task">需要被执行的任务</param>
         public void AssignTask(TransportTask task)
         {
-            Robot idleRobot = FindIdleRobot();
+            Robot idleRobot = FindIdleRobot(task.from);
             if (idleRobot == null)
             {
                 waitingTask.Enqueue(task);
@@ -126,6 +128,66 @@ namespace WarehouseRobot
         {
             IList<Point> route = aStarRoutePlanner.Plan(task.from, task.to);
             return route;
+        }
+        /// <summary>
+        /// 更新即将冲突的机器人的路径
+        /// </summary>
+        /// <param name="conflictInfos">向前看几步</param>
+        public void SolveConflict(List<RouteConflictInfo> conflictInfos)
+        {
+         
+            foreach(RouteConflictInfo conflictInfo in conflictInfos)
+            {
+                //机器人重新规划路线
+                ZoneState[,] tempGrid = (ZoneState[,])this.grid.Clone();
+                tempGrid[conflictInfo.Where.Y, conflictInfo.Where.X] = ZoneState.Blocked;//将碰撞的地方设置为障碍物
+                AStarRoutePlanner aStarRoutePlanner = new AStarRoutePlanner(tempGrid, new SimpleCostGetter());//传入新地图
+                int step = conflictInfo.Step;
+                IList<Point> newRoute=aStarRoutePlanner.Plan(conflictInfo.Robot2.Route[step - 1], conflictInfo.Robot2.Route.Last());//从第i-1步开始重新规划路线
+                if(newRoute==null||step==conflictInfo.Robot2.Route.Count)//若必须经过冲突点才能到达终点 或者冲突点就是终点
+                {
+                    conflictInfo.Robot2.Route.Insert(conflictInfo.Step, conflictInfo.Robot2.Route[step - 1]);//在碰撞前一个点等待;
+                }
+                //IList<Point> tempRoute = conflictInfo.Robot2.Route;//存储原始路径
+                for(int i=0;i<conflictInfo.Step-1;i++)
+                {
+                    newRoute.Insert(i, conflictInfo.Robot2.Route[i]);
+                }
+              /*  foreach (Point point in newRoute)
+                {
+                    conflictInfo.Robot2.Route[step++] = point;//更新第step步之后的路径
+                }*/
+                if(hasConflict(conflictInfo.Robot1.Route,newRoute))//若重新规划路径之后还是冲突 就选择等待方案
+                {
+                    conflictInfo.Robot2.Route.Insert(conflictInfo.Step, conflictInfo.Robot2.Route[step - 1]);//在碰撞前一个点等待;
+                }
+                else
+                {
+                    conflictInfo.Robot2.Route = newRoute;
+                }
+                /*Robot tempRobot = conflictInfo.Robot2;
+                RunningTasks = RunningTasks.ToDictionary(k => k.Key == conflictInfo.Robot2 ? tempRobot : k.Key, k => k.Value);*/
+            }
+        }
+        //如果第二步就冲突 重新规划路线的时候 第一步（也就是现在所在的位置）作为新起点，会不会重复走
+
+        /// <summary>
+        /// 计算指定的两机器人是否冲突
+        /// </summary>
+        /// <param name="route1"></param>
+        /// <param name="route2"></param>
+        /// <param name="forsee"></param>
+        /// <returns></returns>
+       public bool hasConflict(IList<Point> route1, IList<Point> route2, int forsee = 5)
+        {
+            for (int i=0;i<forsee;i++)
+            {
+                if(route1[i].X==route2[i].X&&route1[i].Y==route2[i].Y)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         /// <summary>
         /// 检测所有机器人的路线冲突
@@ -156,10 +218,10 @@ namespace WarehouseRobot
                         {
                             // 检测到冲突，处理具体内容
                             conflictInfos.Add(new RouteConflictInfo(
-                                conflictDict[routes[j][i]],
-                                robotsToDetect[j],
-                                routes[j][i],
-                                i
+                                conflictDict[routes[j][i]],//和第几个机器人碰撞
+                                robotsToDetect[j],//第j个机器人的信息
+                                routes[j][i],//碰撞的地方
+                                i//未来i步碰撞
                             ));
                         }
                         else
@@ -185,6 +247,7 @@ namespace WarehouseRobot
             }
             return conflictInfos;
         }
+        
         /// <summary>
         /// 解决路线冲突的问题
         /// </summary>
@@ -268,6 +331,25 @@ namespace WarehouseRobot
             }
         }
 
-        private Robot FindIdleRobot() => Robots.Find(e => e.State == Enum.RobotState.Idle);
+        private Robot FindIdleRobot(Point point)
+        {
+            Robot temp = null;
+            int minDistance = int.MaxValue;
+            foreach(Robot robot in Robots)
+            {
+                if(robot.State==RobotState.Idle)
+                {
+                    int distance = Math.Abs(robot.CurrentPosition.X - point.X) + Math.Abs(robot.CurrentPosition.Y - point.Y);
+                    if(minDistance>distance)
+                    {
+                        minDistance = distance;
+                        temp = robot;
+                    }
+                }
+            }
+            return temp;
+        }
+
+        
     }
 }

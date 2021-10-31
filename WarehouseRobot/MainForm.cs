@@ -61,11 +61,13 @@ namespace WarehouseRobot
             PrintMap();
 
             /* 画出所有的机器人 */
-            Brush robotBrush = new SolidBrush(Color.Red);
+            int i = 0;
             foreach (KeyValuePair<Robot, TransportTask> keyValuePair in cc.RunningTasks)
             {
+                Brush robotBrush = new SolidBrush(Color.FromArgb(255-i*50,0+i*50,0));
                 Point pos = keyValuePair.Key.CurrentPosition;
                 graphics.FillRectangle(robotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+                ++i;
             }
 
             /* 画出所有的出生点 */
@@ -112,16 +114,21 @@ namespace WarehouseRobot
             {
                 while (!token.IsCancellationRequested)
                 {
-                    //if (cc.RunningTasks.Count < cc.RobotNum)
-                    //{
-                    //    int maxRow = cc.Size.Item1;
-                    //    int maxCol = cc.Size.Item2;
-                    //    cc.AssignTask(new TransportTask()
-                    //    {
-                    //        from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
-                    //        to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
-                    //    });
-                    //}
+                    if (cc.RunningTasks.Count < cc.RobotNum)
+                    {
+                        int maxRow = cc.Size.Item1;
+                        int maxCol = cc.Size.Item2;
+                        TransportTask transportTask = new TransportTask()
+                        {
+                            from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
+                            to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
+                        };
+                        cc.AssignTask(new TransportTask()
+                        {
+                            from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
+                            to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
+                        });
+                    }
                     cc.NextTick();
                     PrintFinalMap();
 
@@ -215,7 +222,7 @@ namespace WarehouseRobot
             setBeginButton.Enabled = true;
             setTaskPointButton.Enabled = true;
             stopSimulateButton.Enabled = false;
-            addTaskButton.Enabled = false;
+            //addTaskButton.Enabled = false;
         }
 
         private void AddTaskButton_Click(object sender, EventArgs e)

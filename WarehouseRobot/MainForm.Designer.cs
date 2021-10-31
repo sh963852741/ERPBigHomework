@@ -70,7 +70,7 @@ namespace WarehouseRobot
             // beginSimulateButton
             // 
             this.beginSimulateButton.Enabled = false;
-            this.beginSimulateButton.Location = new System.Drawing.Point(63, 585);
+            this.beginSimulateButton.Location = new System.Drawing.Point(57, 541);
             this.beginSimulateButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.beginSimulateButton.Name = "beginSimulateButton";
             this.beginSimulateButton.Size = new System.Drawing.Size(73, 25);
@@ -95,10 +95,10 @@ namespace WarehouseRobot
             // 
             // drawButton
             // 
-            this.drawButton.Location = new System.Drawing.Point(9, 296);
+            this.drawButton.Location = new System.Drawing.Point(7, 188);
             this.drawButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.drawButton.Name = "drawButton";
-            this.drawButton.Size = new System.Drawing.Size(183, 25);
+            this.drawButton.Size = new System.Drawing.Size(187, 25);
             this.drawButton.TabIndex = 2;
             this.drawButton.Text = "绘制仓库地图";
             this.drawButton.UseVisualStyleBackColor = true;
@@ -107,7 +107,7 @@ namespace WarehouseRobot
             // stopSimulateButton
             // 
             this.stopSimulateButton.Enabled = false;
-            this.stopSimulateButton.Location = new System.Drawing.Point(63, 555);
+            this.stopSimulateButton.Location = new System.Drawing.Point(57, 582);
             this.stopSimulateButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.stopSimulateButton.Name = "stopSimulateButton";
             this.stopSimulateButton.Size = new System.Drawing.Size(73, 25);
@@ -118,7 +118,7 @@ namespace WarehouseRobot
             // 
             // rowCountUpDown
             // 
-            this.rowCountUpDown.Location = new System.Drawing.Point(43, 239);
+            this.rowCountUpDown.Location = new System.Drawing.Point(41, 120);
             this.rowCountUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.rowCountUpDown.Name = "rowCountUpDown";
             this.rowCountUpDown.Size = new System.Drawing.Size(53, 23);
@@ -131,7 +131,7 @@ namespace WarehouseRobot
             // 
             // colCountUpDown
             // 
-            this.colCountUpDown.Location = new System.Drawing.Point(43, 268);
+            this.colCountUpDown.Location = new System.Drawing.Point(41, 149);
             this.colCountUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.colCountUpDown.Name = "colCountUpDown";
             this.colCountUpDown.Size = new System.Drawing.Size(53, 23);
@@ -145,7 +145,7 @@ namespace WarehouseRobot
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 241);
+            this.label1.Location = new System.Drawing.Point(7, 122);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(32, 17);
@@ -155,7 +155,7 @@ namespace WarehouseRobot
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 269);
+            this.label2.Location = new System.Drawing.Point(7, 150);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(32, 17);
@@ -165,7 +165,7 @@ namespace WarehouseRobot
             // addTaskButton
             // 
             this.addTaskButton.Enabled = false;
-            this.addTaskButton.Location = new System.Drawing.Point(5, 453);
+            this.addTaskButton.Location = new System.Drawing.Point(7, 390);
             this.addTaskButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.addTaskButton.Name = "addTaskButton";
             this.addTaskButton.Size = new System.Drawing.Size(190, 25);
@@ -207,10 +207,10 @@ namespace WarehouseRobot
             // setBeginButton
             // 
             this.setBeginButton.Enabled = false;
-            this.setBeginButton.Location = new System.Drawing.Point(7, 126);
+            this.setBeginButton.Location = new System.Drawing.Point(7, 470);
             this.setBeginButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.setBeginButton.Name = "setBeginButton";
-            this.setBeginButton.Size = new System.Drawing.Size(188, 25);
+            this.setBeginButton.Size = new System.Drawing.Size(190, 25);
             this.setBeginButton.TabIndex = 12;
             this.setBeginButton.Text = "设置出发点";
             this.setBeginButton.UseVisualStyleBackColor = true;
@@ -219,10 +219,10 @@ namespace WarehouseRobot
             // setObstacleButton
             // 
             this.setObstacleButton.Enabled = false;
-            this.setObstacleButton.Location = new System.Drawing.Point(7, 157);
+            this.setObstacleButton.Location = new System.Drawing.Point(7, 430);
             this.setObstacleButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.setObstacleButton.Name = "setObstacleButton";
-            this.setObstacleButton.Size = new System.Drawing.Size(188, 25);
+            this.setObstacleButton.Size = new System.Drawing.Size(190, 25);
             this.setObstacleButton.TabIndex = 13;
             this.setObstacleButton.Text = "设置障碍物";
             this.setObstacleButton.UseVisualStyleBackColor = true;
@@ -266,9 +266,9 @@ namespace WarehouseRobot
             // setTaskPointButton
             // 
             this.setTaskPointButton.Enabled = false;
-            this.setTaskPointButton.Location = new System.Drawing.Point(7, 188);
+            this.setTaskPointButton.Location = new System.Drawing.Point(7, 350);
             this.setTaskPointButton.Name = "setTaskPointButton";
-            this.setTaskPointButton.Size = new System.Drawing.Size(188, 25);
+            this.setTaskPointButton.Size = new System.Drawing.Size(190, 25);
             this.setTaskPointButton.TabIndex = 24;
             this.setTaskPointButton.Text = "设置任务起讫点";
             this.setTaskPointButton.UseVisualStyleBackColor = true;
@@ -277,7 +277,7 @@ namespace WarehouseRobot
             // genBeginPointCheckBox
             // 
             this.genBeginPointCheckBox.AutoSize = true;
-            this.genBeginPointCheckBox.Location = new System.Drawing.Point(103, 269);
+            this.genBeginPointCheckBox.Location = new System.Drawing.Point(101, 150);
             this.genBeginPointCheckBox.Name = "genBeginPointCheckBox";
             this.genBeginPointCheckBox.Size = new System.Drawing.Size(87, 21);
             this.genBeginPointCheckBox.TabIndex = 23;
@@ -289,7 +289,7 @@ namespace WarehouseRobot
             this.genObstacleCheckBox.AutoSize = true;
             this.genObstacleCheckBox.Checked = true;
             this.genObstacleCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.genObstacleCheckBox.Location = new System.Drawing.Point(103, 241);
+            this.genObstacleCheckBox.Location = new System.Drawing.Point(101, 122);
             this.genObstacleCheckBox.Name = "genObstacleCheckBox";
             this.genObstacleCheckBox.Size = new System.Drawing.Size(75, 21);
             this.genObstacleCheckBox.TabIndex = 22;
@@ -298,7 +298,7 @@ namespace WarehouseRobot
             // 
             // targetColUpDown
             // 
-            this.targetColUpDown.Location = new System.Drawing.Point(152, 424);
+            this.targetColUpDown.Location = new System.Drawing.Point(153, 296);
             this.targetColUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.targetColUpDown.Name = "targetColUpDown";
             this.targetColUpDown.Size = new System.Drawing.Size(40, 23);
@@ -307,7 +307,7 @@ namespace WarehouseRobot
             // 
             // targetRowUpDown
             // 
-            this.targetRowUpDown.Location = new System.Drawing.Point(56, 424);
+            this.targetRowUpDown.Location = new System.Drawing.Point(57, 296);
             this.targetRowUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.targetRowUpDown.Name = "targetRowUpDown";
             this.targetRowUpDown.Size = new System.Drawing.Size(40, 23);
@@ -316,7 +316,7 @@ namespace WarehouseRobot
             // 
             // beginColUpDown
             // 
-            this.beginColUpDown.Location = new System.Drawing.Point(152, 384);
+            this.beginColUpDown.Location = new System.Drawing.Point(153, 256);
             this.beginColUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.beginColUpDown.Name = "beginColUpDown";
             this.beginColUpDown.Size = new System.Drawing.Size(40, 23);
@@ -325,7 +325,7 @@ namespace WarehouseRobot
             // 
             // beginRowUpDown
             // 
-            this.beginRowUpDown.Location = new System.Drawing.Point(56, 384);
+            this.beginRowUpDown.Location = new System.Drawing.Point(57, 256);
             this.beginRowUpDown.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.beginRowUpDown.Name = "beginRowUpDown";
             this.beginRowUpDown.Size = new System.Drawing.Size(40, 23);
@@ -335,7 +335,7 @@ namespace WarehouseRobot
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(100, 426);
+            this.label6.Location = new System.Drawing.Point(101, 298);
             this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(56, 17);
@@ -345,7 +345,7 @@ namespace WarehouseRobot
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(7, 426);
+            this.label5.Location = new System.Drawing.Point(8, 298);
             this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(56, 17);
@@ -355,7 +355,7 @@ namespace WarehouseRobot
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(100, 387);
+            this.label4.Location = new System.Drawing.Point(101, 259);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(56, 17);
@@ -365,7 +365,7 @@ namespace WarehouseRobot
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(5, 387);
+            this.label3.Location = new System.Drawing.Point(6, 259);
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(56, 17);

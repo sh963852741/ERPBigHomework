@@ -93,7 +93,6 @@ namespace WarehouseRobot
             if (Route == null)
                 return;
             Route.Clear();
-            
         }
     }
 }

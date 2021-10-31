@@ -59,14 +59,32 @@ namespace WarehouseRobot
         private void PrintFinalMap()
         {
             PrintMap();
-
+            int halfGap = gridGap / 2;
             /* 画出所有的机器人 */
-            int i = 0;
-            foreach (KeyValuePair<Robot, TransportTask> keyValuePair in cc.RunningTasks)
+            Brush strBrush = new SolidBrush(Color.White);
+            Brush idleRobotBrush = new SolidBrush(Color.LightSalmon);
+            Brush robotBrush = new SolidBrush(Color.Red);
+            Pen robotPen = new (Color.Blue, 2);
+            int i = 1;
+            foreach (Robot robot in cc.Robots)
             {
-                Brush robotBrush = new SolidBrush(Color.FromArgb(255-i*50,0+i*50,0));
-                Point pos = keyValuePair.Key.CurrentPosition;
-                graphics.FillRectangle(robotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+                Point pos = robot.CurrentPosition;
+                if (robot.State == RobotState.Idle)
+                {
+                    graphics.FillRectangle(idleRobotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+
+                }
+                else if (robot.State == RobotState.Running)
+                {
+                    graphics.FillRectangle(robotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+                    if (robot.Route.Count > 0)
+                        graphics.DrawLine(robotPen,
+                            robot.CurrentPosition.X * gridGap + halfGap,
+                            robot.CurrentPosition.Y * gridGap + halfGap,
+                            robot.Route[0].X * gridGap + halfGap,
+                            robot.Route[0].Y * gridGap + halfGap);
+                }
+                graphics.DrawString(i.ToString(), Font, strBrush, pos.X * gridGap + 1F, pos.Y * gridGap + 1F);
                 ++i;
             }
 
@@ -155,7 +173,7 @@ namespace WarehouseRobot
         /// <summary>
         /// 清除地图
         /// </summary>
-        private void ClearMap() 
+        private void ClearMap()
         {
             grid = null;
             beginPoints.Clear();
@@ -195,7 +213,7 @@ namespace WarehouseRobot
                 }
             }
 
-            if(genObstacleCheckBox.Checked)
+            if (genObstacleCheckBox.Checked)
             {
                 grid = GridGenerator.GetGrid(out IList<Point> obstacle, maxRow, maxCol);
                 obstaclePoints = obstacle.ToHashSet();
@@ -227,12 +245,12 @@ namespace WarehouseRobot
 
         private void AddTaskButton_Click(object sender, EventArgs e)
         {
-            if(taskPoints[0].IsEmpty||taskPoints[1].IsEmpty)
+            if (taskPoints[0].IsEmpty || taskPoints[1].IsEmpty)
             {
                 MessageBox.Show("任务的起点或终点不在地图内。", "无效输入", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            if(taskPoints[0] == taskPoints[1])
+            if (taskPoints[0] == taskPoints[1])
             {
                 MessageBox.Show("任务的起点和终点不能是同一个点。", "无效输入", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -312,28 +330,28 @@ namespace WarehouseRobot
                 }
                 grid = GridGenerator.GetGrid(obstaclePoints.ToList(), maxRow, maxCol);
             }
-            else if(mapState == MapState.SettingTaskPoint)
+            else if (mapState == MapState.SettingTaskPoint)
             {
                 Point p = new(x, y);
-                if(obstaclePoints.Contains(p))
+                if (obstaclePoints.Contains(p))
                 {
                     return;
                 }
 
-                Point p1 = new(x+1, y+1);
+                Point p1 = new(x + 1, y + 1);
                 if (taskPoints[0] == p1)
                 {
                     // 取消当前点
                     taskPoints[0] = Point.Empty;
                     SetCellColor(p, defaultColor);
                 }
-                else if(taskPoints[1] == p1)
+                else if (taskPoints[1] == p1)
                 {
                     // 取消当前点
                     taskPoints[1] = Point.Empty;
                     SetCellColor(p, defaultColor);
                 }
-                else if(taskPoints[0] == Point.Empty)
+                else if (taskPoints[0] == Point.Empty)
                 {
                     taskPoints[0] = p1;
                 }
@@ -401,7 +419,7 @@ namespace WarehouseRobot
         /// </summary>
         private void DrawTaskPoint()
         {
-            if(!taskPoints[0].IsEmpty)
+            if (!taskPoints[0].IsEmpty)
                 SetCellColor(taskPoints[0] - new Size(1, 1), Color.LightBlue);
             if (!taskPoints[1].IsEmpty)
                 SetCellColor(taskPoints[1] - new Size(1, 1), Color.DarkBlue);
@@ -420,10 +438,10 @@ namespace WarehouseRobot
 
         private void GetUpDownCount()
         {
-            taskPoints[0].X= (int)beginColUpDown.Value;
-            taskPoints[0].Y=(int)beginRowUpDown.Value;
-            taskPoints[1].X=(int)targetColUpDown.Value;
-            taskPoints[1].Y=(int)targetRowUpDown.Value;
+            taskPoints[0].X = (int)beginColUpDown.Value;
+            taskPoints[0].Y = (int)beginRowUpDown.Value;
+            taskPoints[1].X = (int)targetColUpDown.Value;
+            taskPoints[1].Y = (int)targetRowUpDown.Value;
         }
 
         private void SetUpDownCount()

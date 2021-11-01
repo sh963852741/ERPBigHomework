@@ -152,7 +152,7 @@ namespace WarehouseRobot
                     IList<Point> totalTask = CalcPath(robot, preTask).Concat(CalcPath(robot, task)).ToList();
                     robot.SetTask(totalTask, suspendAt);
                 }
-                else if (robot.State == RobotState.Returning)
+                else if (robot.State == RobotState.Running)
                 {
                     TransportTask preTask = new()
                     {
@@ -422,7 +422,7 @@ namespace WarehouseRobot
         private Robot FindSuitableRobot(Point point)
         {
             Robot temp = null;
-            int minDistance = point.X + point.Y;
+            int minDistance = int.MaxValue;
 
             foreach (Robot robot in Robots)
             {
@@ -430,7 +430,7 @@ namespace WarehouseRobot
                 {
                     // 对于空闲和返回状态，此机器人可以立即被指派新的任务
                     int distance = Math.Abs(robot.CurrentPosition.X - point.X) + Math.Abs(robot.CurrentPosition.Y - point.Y);
-                    if (minDistance >= distance)
+                    if (minDistance > distance)
                     {
                         minDistance = distance;
                         temp = robot;

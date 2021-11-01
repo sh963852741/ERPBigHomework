@@ -141,17 +141,17 @@ namespace WarehouseRobot
             addTaskButton.Enabled = true;
             tokenSource = new();
 
-            for (int i = 0; i < 4; ++i)
-            {
-                int maxRow = cc.Size.Item1;
-                int maxCol = cc.Size.Item2;
-                TransportTask transportTask = new TransportTask()
-                {
-                    from = new Point(5, 5),
-                    to = new Point(20, 20)
-                };
-                cc.AssignTask(transportTask);
-            }
+            //for (int i = 0; i < 4; ++i)
+            //{
+            //    int maxRow = cc.Size.Item1;
+            //    int maxCol = cc.Size.Item2;
+            //    TransportTask transportTask = new TransportTask()
+            //    {
+            //        from = new Point(5, 5),
+            //        to = new Point(20, 20)
+            //    };
+            //    cc.AssignTask(transportTask);
+            //}
 
             CancellationToken token = tokenSource.Token;
             Task task = new(() =>

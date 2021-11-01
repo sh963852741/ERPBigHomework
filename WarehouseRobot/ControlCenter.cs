@@ -92,13 +92,29 @@ namespace WarehouseRobot
         {
             foreach (Robot r in Robots)
             {
-                if (r.State == RobotState.Finished)
+                if (r.State == RobotState.Oprating)
                 {
-                    r.Reset();
-                    r.Route = aStarRoutePlanner.Plan(r.CurrentPosition, beginPoint);
-                    if (waitingTask.Count > 0)
-                        AssignTask(waitingTask.Dequeue());
-                    // 调用事件
+                    if(r.Route.Count > 0)
+                    {
+                        // 还有路要走
+                        r.State = RobotState.Running;
+                    }
+                    else
+                    {
+                        if(r.CurrentPosition == beginPoint)
+                        {
+                            // 运行结束，在起始位置
+                            r.State = RobotState.Idle;
+                            r.History.Clear();
+                            r.Route?.Clear();
+                        }
+                        else
+                        {
+                            // 运行结束，不在起始位置，返回
+                            r.State = RobotState.Returning;
+                            r.Route = aStarRoutePlanner.Plan(r.CurrentPosition, beginPoint);
+                        }
+                    }
                     OnOneTaskFinished();
                 }
                 r.Move();
@@ -112,26 +128,43 @@ namespace WarehouseRobot
         /// <param name="task">需要被执行的任务</param>
         public void AssignTask(TransportTask task)
         {
-            Robot idleRobot = FindIdleRobot(task.from);
-            if (idleRobot == null)
+            Robot robot = FindSuitableRobot(task.from);
+            if (robot == null)
             {
-                waitingTask.Enqueue(task);
+                throw new NotImplementedException("不可能发生此情况。");
+                //waitingTask.Enqueue(task);
             }
             else
             {
-                //RunningTasks.Add(idleRobot, task);
-                TransportTask t1 = new TransportTask() {
-                from = idleRobot.CurrentPosition, 
-                 to =   task.from
-                };
-                TransportTask t2 = new TransportTask()
+                if(robot.State == RobotState.Idle || robot.State == RobotState.Returning)
                 {
-                    from = task.to,
-                    to = beginPoint
-                };
-                IList<Point> totalTask = CalcPath(idleRobot, t1).Concat(CalcPath(idleRobot, task)).ToList().Concat(CalcPath(idleRobot,t2)).ToList();
-                idleRobot.SetTask(totalTask);
-               
+                    TransportTask preTask = new ()
+                    {
+                        from = robot.CurrentPosition,
+                        to = task.from
+                    };
+                    IList<Point> suspendAt = new List<Point>()
+                    {
+                        task.from
+                    };
+                    IList<Point> totalTask = CalcPath(robot, preTask).Concat(CalcPath(robot, task)).ToList();
+                    robot.SetTask(totalTask, suspendAt);
+                }
+                else if(robot.State == RobotState.Returning)
+                {
+                    TransportTask preTask = new()
+                    {
+                        from = robot.Route.Last(),
+                        to = task.from
+                    };
+                    IList<Point> suspendAt = new List<Point>()
+                    {
+                        robot.Route.Last(),
+                        task.from
+                    };
+                    IList<Point> totalTask = robot.Route.Concat(CalcPath(robot, preTask)).Concat(CalcPath(robot, task)).ToList();
+                    robot.SetTask(totalTask, suspendAt);
+                } 
             }
         }
         /// <summary>
@@ -151,9 +184,13 @@ namespace WarehouseRobot
         /// <param name="conflictInfos">向前看几步</param>
         public void SolveConflict(List<RouteConflictInfo> conflictInfos)
         {
-         
             foreach(RouteConflictInfo conflictInfo in conflictInfos)
             {
+                if(conflictInfo.Step ==0)
+                {
+                    // 不要理会已经相撞的情况，这可能是由于两个机器人在同一时刻从同一点出发
+                    continue;
+                }
                 //机器人重新规划路线
                 ZoneState[,] tempGrid = (ZoneState[,])this.grid.Clone();
                 tempGrid[conflictInfo.Where.Y, conflictInfo.Where.X] = ZoneState.Blocked;//将碰撞的地方设置为障碍物
@@ -171,7 +208,7 @@ namespace WarehouseRobot
                     newRoute.Insert(i, conflictInfo.Robot2.Route[i]);
                 }
            
-                if(twoRobotHasConflict(conflictInfo.Robot1.Route,newRoute))//若重新规划路径之后还是冲突 就选择等待方案
+                if(TwoRobotHasConflict(conflictInfo.Robot1.Route,newRoute))//若重新规划路径之后还是冲突 就选择等待方案
                 {
                     conflictInfo.Robot2.Route.Insert(conflictInfo.Step, conflictInfo.Robot2.Route[step - 1]);//在碰撞前一个点等待;
                 }
@@ -190,7 +227,7 @@ namespace WarehouseRobot
         /// <param name="route2"></param>
         /// <param name="forsee"></param>
         /// <returns></returns>
-       public bool twoRobotHasConflict(IList<Point> route1, IList<Point> route2, int forsee = 5)
+       public bool TwoRobotHasConflict(IList<Point> route1, IList<Point> route2, int forsee = 5)
         {
             int length = route1.Count < route2.Count ? route1.Count : route2.Count;//获取两机器人路径长度的最小值
             for (int i=0;i<length;i++)
@@ -218,7 +255,7 @@ namespace WarehouseRobot
             List<IList<Point>> routes = new();
             foreach (Robot r in Robots)
             {
-                if (r.Route == null)
+                if (r.Route == null || r.Route.Count == 0)
                     continue;
                 robotsToDetect.Add(r);
                 routes.Add(r.Route);
@@ -286,9 +323,7 @@ namespace WarehouseRobot
                 robotToRemove.Clear();
                 conflictDict.Clear();
             }
-
-
-
+            
             return conflictInfos;
         }
         
@@ -374,17 +409,21 @@ namespace WarehouseRobot
                 Console.ResetColor();
             }*/
         }
-
-        private Robot FindIdleRobot(Point point)
+        /// <summary>
+        /// 获取一个合适的机器人接受此任务
+        /// </summary>
+        /// <param name="point">任务的开始点</param>
+        /// <returns></returns>
+        private Robot FindSuitableRobot(Point point)
         {
             Robot temp = null;
             int minDistance = point.X+point.Y;
             
             foreach(Robot robot in Robots)
             {
-                if(robot.State==RobotState.Idle|| robot.State == RobotState.Running)
+                if(robot.State==RobotState.Idle|| robot.State == RobotState.Returning)
                 {
-                    //找到离货物最近的空闲机器人
+                    // 对于空闲和返回状态，此机器人可以立即被指派新的任务
                     int distance = Math.Abs(robot.CurrentPosition.X - point.X) + Math.Abs(robot.CurrentPosition.Y - point.Y);
                     if(minDistance>=distance)
                     {
@@ -392,8 +431,16 @@ namespace WarehouseRobot
                         temp = robot;
                     }
                 }
-              
-               
+                else if(robot.State == RobotState.Running)
+                {
+                    // 对于运行状态的机器人，需要等待其执行完当前任务再指派新任务
+                    int distance = Math.Abs(robot.Route.Last().X - point.X) + Math.Abs(robot.Route.Last().Y - point.Y)+robot.Route.Count;
+                    if (minDistance > distance)
+                    {
+                        minDistance = distance;
+                        temp = robot;
+                    }
+                }
             }
             return temp;
         }

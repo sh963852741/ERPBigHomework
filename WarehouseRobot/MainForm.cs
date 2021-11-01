@@ -24,6 +24,7 @@ namespace WarehouseRobot
         private int maxRow = 0;
         private int maxCol = 0;
         private const int gridGap = 20;
+        private static readonly object gdilock = new object();
         private ZoneState[,] grid = null;
         private Graphics graphics = null;
         private MapState mapState = MapState.Unknown;
@@ -44,14 +45,17 @@ namespace WarehouseRobot
             /* 清空所有的格子（含障碍物） */
             Brush defaultBrush = new SolidBrush(defaultColor);
             Brush obstacleBrush = new SolidBrush(Color.Black);
-            for (uint i = 0; i < grid.GetLength(0); ++i)
+            lock (gdilock)
             {
-                for (uint j = 0; j < grid.GetLength(1); ++j)
+                for (uint i = 0; i < grid.GetLength(0); ++i)
                 {
-                    if (grid[i, j] == ZoneState.Empty)
-                        graphics.FillRectangle(defaultBrush, j * gridGap + 1, i * gridGap + 1, gridGap - 1, gridGap - 1);
-                    else if (grid[i, j] == ZoneState.Blocked)
-                        graphics.FillRectangle(obstacleBrush, j * gridGap + 1, i * gridGap + 1, gridGap - 1, gridGap - 1);
+                    for (uint j = 0; j < grid.GetLength(1); ++j)
+                    {
+                        if (grid[i, j] == ZoneState.Empty)
+                            graphics.FillRectangle(defaultBrush, j * gridGap + 1, i * gridGap + 1, gridGap - 1, gridGap - 1);
+                        else if (grid[i, j] == ZoneState.Blocked)
+                            graphics.FillRectangle(obstacleBrush, j * gridGap + 1, i * gridGap + 1, gridGap - 1, gridGap - 1);
+                    }
                 }
             }
         }
@@ -63,36 +67,46 @@ namespace WarehouseRobot
             /* 画出所有的机器人 */
             Brush strBrush = new SolidBrush(Color.White);
             Brush idleRobotBrush = new SolidBrush(Color.LightSalmon);
+            Brush returnRobotBrush = new SolidBrush(Color.LightCoral);
+            Brush finishRobotBrush = new SolidBrush(Color.Yellow);
             Brush robotBrush = new SolidBrush(Color.Red);
+            Brush beginPointBrush = new SolidBrush(Color.LightGreen);
             Pen robotPen = new (Color.Blue, 2);
             int i = 1;
-            foreach (Robot robot in cc.Robots)
+            lock(gdilock)
             {
-                Point pos = robot.CurrentPosition;
-                if (robot.State == RobotState.Idle)
+                foreach (Robot robot in cc.Robots)
                 {
-                    graphics.FillRectangle(idleRobotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+                    Point pos = robot.CurrentPosition;
+                    if (robot.State == RobotState.Idle)
+                    {
+                        graphics.FillRectangle(idleRobotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
 
+                    }
+                    else if (robot.State == RobotState.Running || robot.State == RobotState.Returning)
+                    {
+                        graphics.FillRectangle(robot.State == RobotState.Running ? robotBrush : returnRobotBrush
+                            , pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+                        if (robot.Route.Count > 0)
+                            graphics.DrawLine(robotPen,
+                                robot.CurrentPosition.X * gridGap + halfGap,
+                                robot.CurrentPosition.Y * gridGap + halfGap,
+                                robot.Route[0].X * gridGap + halfGap,
+                                robot.Route[0].Y * gridGap + halfGap);
+                    }
+                    else if (robot.State == RobotState.Oprating)
+                    {
+                        graphics.FillRectangle(finishRobotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+                    }
+                    graphics.DrawString(i.ToString(), Font, strBrush, pos.X * gridGap + 1F, pos.Y * gridGap + 1F);
+                    ++i;
                 }
-                else if (robot.State == RobotState.Running)
+
+                /* 画出所有的出生点 */
+                foreach (Point pos in beginPoints)
                 {
-                    graphics.FillRectangle(robotBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
-                    if (robot.Route.Count > 0)
-                        graphics.DrawLine(robotPen,
-                            robot.CurrentPosition.X * gridGap + halfGap,
-                            robot.CurrentPosition.Y * gridGap + halfGap,
-                            robot.Route[0].X * gridGap + halfGap,
-                            robot.Route[0].Y * gridGap + halfGap);
+                    graphics.FillRectangle(beginPointBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
                 }
-                graphics.DrawString(i.ToString(), Font, strBrush, pos.X * gridGap + 1F, pos.Y * gridGap + 1F);
-                ++i;
-            }
-
-            /* 画出所有的出生点 */
-            Brush beginPointBrush = new SolidBrush(Color.LightGreen);
-            foreach (Point pos in beginPoints)
-            {
-                graphics.FillRectangle(beginPointBrush, pos.X * gridGap + 1, pos.Y * gridGap + 1, gridGap - 1, gridGap - 1);
             }
 
             DrawTaskPoint();
@@ -127,26 +141,23 @@ namespace WarehouseRobot
             addTaskButton.Enabled = true;
             tokenSource = new();
 
+            for (int i = 0; i < 4; ++i)
+            {
+                int maxRow = cc.Size.Item1;
+                int maxCol = cc.Size.Item2;
+                TransportTask transportTask = new TransportTask()
+                {
+                    from = new Point(3, 3),
+                    to = new Point(10, 8)
+                };
+                cc.AssignTask(transportTask);
+            }
+
             CancellationToken token = tokenSource.Token;
             Task task = new(() =>
             {
                 while (!token.IsCancellationRequested)
                 {
-                    //if (cc.RunningTasks.Count < cc.RobotNum)
-                    //{
-                    //    int maxRow = cc.Size.Item1;
-                    //    int maxCol = cc.Size.Item2;
-                    //    TransportTask transportTask = new TransportTask()
-                    //    {
-                    //        from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
-                    //        to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
-                    //    };
-                    //    cc.AssignTask(new TransportTask()
-                    //    {
-                    //        from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
-                    //        to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
-                    //    });
-                    //}
                     cc.NextTick();
                     PrintFinalMap();
 
@@ -167,7 +178,10 @@ namespace WarehouseRobot
         private void SetCellColor(Point point, Color color)
         {
             Brush b = new SolidBrush(color);
-            graphics.FillRectangle(b, point.X * gridGap + 1, point.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+            lock(gdilock)
+            {
+                graphics.FillRectangle(b, point.X * gridGap + 1, point.Y * gridGap + 1, gridGap - 1, gridGap - 1);
+            }
         }
 
         /// <summary>

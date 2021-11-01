@@ -14,6 +14,13 @@ namespace WarehouseRobot
     public class Robot
     {
         /// <summary>
+        /// 在某处短暂停留，即到达此点时，将机器人状态设置为Finish
+        /// </summary>
+        HashSet<Point> SuspendAt
+        {
+            get; set;
+        } = new();
+        /// <summary>
         /// 机器人ID，唯一标识
         /// </summary>
         public Guid Id
@@ -55,15 +62,14 @@ namespace WarehouseRobot
         /// <returns>是否移动成功</returns>
         public bool Move()
         {
-            if (State == RobotState.Running)
+            if (State == RobotState.Running|| State == RobotState.Returning)
             {
                 CurrentPosition = Route[0];
                 Route.RemoveAt(0);
                 History.Add(CurrentPosition);
-                Console.WriteLine(Route.Count);
-                if (Route.Count == 0)
+                if (Route.Count == 0 || SuspendAt.Remove(CurrentPosition))
                 {
-                    State = RobotState.Finished;
+                    State = RobotState.Oprating;
                 }
                 return true;
             }
@@ -78,21 +84,25 @@ namespace WarehouseRobot
         /// <param name="route">机器人的运输路线，含起点和终点</param>
         public void SetTask(IList<Point> route)
         {
-            if (route == null)
-                State = RobotState.Finished;
-            else
-            {
-                Route = route;
-                State = RobotState.Running;
-            }
+            Route = route;
+            State = RobotState.Running;
         }
+
+        public void SetTask(IList<Point> route, IList<Point> suspendAt)
+        {
+            Route = route;
+            State = RobotState.Running;
+            SuspendAt = suspendAt.ToHashSet();
+        }
+        /// <summary>
+        /// 慎用，仅用于复位机器人状态
+        /// </summary>
         public void Reset()
         {
             State = RobotState.Idle;
             History.Clear();
-            if (Route == null)
-                return;
-            Route.Clear();
+            Route?.Clear();
+            SuspendAt.Clear();
         }
     }
 }

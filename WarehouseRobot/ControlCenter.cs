@@ -108,13 +108,15 @@ namespace WarehouseRobot
                             // 运行结束，在起始位置
                             r.State = RobotState.Idle;
                             r.History.Clear();
-                            r.Route?.Clear();
+                            r.Route.Clear();
                         }
                         else
                         {
                             // 运行结束，不在起始位置，返回
                             r.State = RobotState.Returning;
                             r.Route = aStarRoutePlanner.Plan(r.CurrentPosition, beginPoint);
+   
+                            
                         }
                     }
                     OnOneTaskFinished();
@@ -186,11 +188,15 @@ namespace WarehouseRobot
         /// <param name="conflictInfos">向前看几步</param>
         public void SolveConflict(List<RouteConflictInfo> conflictInfos)
         {
+
+            HashSet<String> robotSet = new HashSet<String>(); 
             foreach (RouteConflictInfo conflictInfo in conflictInfos)
             {
+                String id = conflictInfo.Robot1.Id.ToString() + conflictInfo.Robot2.Id.ToString();
+                if (robotSet.Contains(id))
+                    continue;
                 if (conflictInfo.Step == 0)
                 {
-                    // 不要理会已经相撞的情况，这可能是由于两个机器人在同一时刻从同一点出发
                     continue;
                 }
                 ZoneState[,] tempGrid = (ZoneState[,])this.grid.Clone();
@@ -223,6 +229,8 @@ namespace WarehouseRobot
                 {
                     conflictInfo.Robot2.Route = newRoute;
                 }
+                
+                robotSet.Add(id);
             }
         }
 
@@ -287,6 +295,7 @@ namespace WarehouseRobot
                                 routes[j][i],//碰撞的地方
                                 i//未来i步碰撞
                             ));
+                            
                         }
                         else
                         {

@@ -132,21 +132,21 @@ namespace WarehouseRobot
             {
                 while (!token.IsCancellationRequested)
                 {
-                    if (cc.RunningTasks.Count < cc.RobotNum)
-                    {
-                        int maxRow = cc.Size.Item1;
-                        int maxCol = cc.Size.Item2;
-                        TransportTask transportTask = new TransportTask()
-                        {
-                            from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
-                            to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
-                        };
-                        cc.AssignTask(new TransportTask()
-                        {
-                            from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
-                            to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
-                        });
-                    }
+                    //if (cc.RunningTasks.Count < cc.RobotNum)
+                    //{
+                    //    int maxRow = cc.Size.Item1;
+                    //    int maxCol = cc.Size.Item2;
+                    //    TransportTask transportTask = new TransportTask()
+                    //    {
+                    //        from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
+                    //        to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
+                    //    };
+                    //    cc.AssignTask(new TransportTask()
+                    //    {
+                    //        from = new Point(r.Next(0, maxCol), r.Next(0, maxRow)),
+                    //        to = new Point(r.Next(0, maxCol), r.Next(0, maxRow))
+                    //    });
+                    //}
                     cc.NextTick();
                     PrintFinalMap();
 
@@ -264,7 +264,7 @@ namespace WarehouseRobot
 
             /* 更新必要信息 */
             queuingTaskCountLabel.Text = $"排队任务数：{cc.QueuingTaskCount}";
-            runningTaskCountLabel.Text = $"执行任务数：{cc.RunningTasks.Count}";
+            //runningTaskCountLabel.Text = $"执行任务数：{cc.RunningTasks.Count}";
         }
 
         private void ReflashInfo()
@@ -272,7 +272,7 @@ namespace WarehouseRobot
             Action a = () =>
             {
                 queuingTaskCountLabel.Text = $"排队任务数：{cc.QueuingTaskCount}";
-                runningTaskCountLabel.Text = $"执行任务数：{cc.RunningTasks.Count}";
+                //runningTaskCountLabel.Text = $"执行任务数：{cc.RunningTasks.Count}";
             };
             this.Invoke(a);
         }

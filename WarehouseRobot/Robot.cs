@@ -18,8 +18,8 @@ namespace WarehouseRobot
         /// </summary>
         public Guid Id
         {
-            get;set;
-        }
+            get; set;
+        } = Guid.NewGuid();
         /// <summary>
         /// 记录机器人行动的路径
         /// </summary>

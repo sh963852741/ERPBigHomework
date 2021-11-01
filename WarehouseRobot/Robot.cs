@@ -16,7 +16,7 @@ namespace WarehouseRobot
         /// <summary>
         /// 在某处短暂停留，即到达此点时，将机器人状态设置为Finish
         /// </summary>
-        HashSet<Point> SuspendAt
+        public HashSet<Point> SuspendAt
         {
             get; set;
         } = new();

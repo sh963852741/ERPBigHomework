@@ -147,8 +147,8 @@ namespace WarehouseRobot
                 int maxCol = cc.Size.Item2;
                 TransportTask transportTask = new TransportTask()
                 {
-                    from = new Point(3, 3),
-                    to = new Point(10, 8)
+                    from = new Point(5, 5),
+                    to = new Point(20, 20)
                 };
                 cc.AssignTask(transportTask);
             }

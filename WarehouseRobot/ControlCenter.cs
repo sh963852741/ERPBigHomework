@@ -95,6 +95,8 @@ namespace WarehouseRobot
         {
             try
             {
+                var confilcts = DetectConflict();
+                SolveConflict(confilcts);
                 foreach (Robot r in Robots)
                 {
                     if (r.State == RobotState.Oprating)
@@ -126,8 +128,7 @@ namespace WarehouseRobot
                     }
                     r.Move();
                 }
-                var confilcts = DetectConflict();
-                SolveConflict(confilcts);
+                
             }
            catch(Exception e)
             {
@@ -200,13 +201,14 @@ namespace WarehouseRobot
             HashSet<String> robotSet = new HashSet<String>(); 
             foreach (RouteConflictInfo conflictInfo in conflictInfos)
             {
-                String id = conflictInfo.Robot1.Id.ToString() + conflictInfo.Robot2.Id.ToString();
-                if (robotSet.Contains(id))
-                    continue;
+                
                 if (conflictInfo.Step == 0)
                 {
                     continue;
                 }
+                String id = conflictInfo.Robot1.Id.ToString() + conflictInfo.Robot2.Id.ToString();
+                if (robotSet.Contains(id))
+                    continue;
                 ZoneState[,] tempGrid = (ZoneState[,])this.grid.Clone();
                 // 将碰撞的地方设置为障碍物
                 tempGrid[conflictInfo.Where.Y, conflictInfo.Where.X] = ZoneState.Blocked;

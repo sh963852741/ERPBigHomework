@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -92,39 +93,46 @@ namespace WarehouseRobot
         /// </summary>
         public void NextTick()
         {
-            foreach (Robot r in Robots)
+            try
             {
-                if (r.State == RobotState.Oprating)
+                foreach (Robot r in Robots)
                 {
-                    if (r.Route.Count > 0)
+                    if (r.State == RobotState.Oprating)
                     {
-                        // 还有路要走
-                        r.State = RobotState.Running;
-                    }
-                    else
-                    {
-                        if (r.CurrentPosition == beginPoint)
+                        if (r.Route.Count > 0)
                         {
-                            // 运行结束，在起始位置
-                            r.State = RobotState.Idle;
-                            r.History.Clear();
-                            r.Route.Clear();
+                            // 还有路要走
+                            r.State = RobotState.Running;
                         }
                         else
                         {
-                            // 运行结束，不在起始位置，返回
-                            r.State = RobotState.Returning;
-                            r.Route = aStarRoutePlanner.Plan(r.CurrentPosition, beginPoint);
-   
-                            
+                            if (r.CurrentPosition == beginPoint)
+                            {
+                                // 运行结束，在起始位置
+                                r.State = RobotState.Idle;
+                                r.History.Clear();
+                                r.Route.Clear();
+                            }
+                            else
+                            {
+                                // 运行结束，不在起始位置，返回
+                                r.State = RobotState.Returning;
+                                r.Route = aStarRoutePlanner.Plan(r.CurrentPosition, beginPoint);
+
+
+                            }
                         }
+                        OnOneTaskFinished();
                     }
-                    OnOneTaskFinished();
+                    r.Move();
                 }
-                r.Move();
+                var confilcts = DetectConflict();
+                SolveConflict(confilcts);
             }
-            var confilcts = DetectConflict();
-            SolveConflict(confilcts);
+           catch(Exception e)
+            {
+                string x = e.Message;
+            }
         }
         /// <summary>
         /// 为指挥中心分派任务
@@ -312,7 +320,7 @@ namespace WarehouseRobot
                                         && routes[k][i + 1].X == routes[j][i].X && routes[k][i + 1].Y == routes[j][i].Y)
                                     {
                                         conflictInfos.Add(new RouteConflictInfo(
-                                            conflictDict[routes[k][i]],
+                                            robotsToDetect[j],
                                             robotsToDetect[k],
                                             routes[j][i], // 碰撞的地方
                                             i + 1 // 未来i+1步碰撞

@@ -140,7 +140,7 @@ namespace WarehouseRobot
             drawButton.Enabled = false;
             addTaskButton.Enabled = true;
             tokenSource = new();
-
+/*
             for (int i = 0; i < 4; ++i)
             {
                 int maxRow = cc.Size.Item1;
@@ -151,7 +151,7 @@ namespace WarehouseRobot
                   to = new Point(7, 7)
                };
                cc.AssignTask(transportTask);
-            }
+            }*/
 
             CancellationToken token = tokenSource.Token;
             Task task = new(() =>
